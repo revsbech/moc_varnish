@@ -5,7 +5,8 @@
 #Backend definitions
 #
 
-#default is localhost
+#default is localhost, on my computer Apache is running on port 8080. Change to you specific needs. See the Varnish website for exmamples of 
+#how to configures multiple backends and load-balancing etc.
 backend default {
 	.host = "127.0.0.1";
 	.port = "8080";
@@ -55,10 +56,10 @@ sub vcl_recv {
 
     #Respect force-reload, and clear cache accordingly. This means that a ctrl-reload will acutally purge 
     # the cache for this URL.
-    if (req.http.Cache-Control ~ "no-cache") {
-       purge_url(req.url);
-       return (pass);
-    }
+    #if (req.http.Cache-Control ~ "no-cache") {
+    #   purge_url(req.url);
+    #   return (pass);
+    #}
 
     #Always cache all images
     if (req.url ~ "\.(png|gif|jpg|swf)$") {
@@ -79,14 +80,20 @@ sub vcl_recv {
 
 sub vcl_fetch {
 
+	#Respect force-reload, and clear cache accordingly. This means that a ctrl-reload will acutally purge 
+	# the cache for this URL.
+	if (req.http.Cache-Control ~ "no-cache") {
+		set obj.ttl = 0s;
+		#Make sure ESI includes are processed!
+		esi;
+	  	return (deliver);
+	}
+
+
     if (req.url ~ "\.(png|gif|jpg|swf)$") {
        unset obj.http.set-cookie;
        set obj.http.X-Cacheable = "YES:jpg,gif,jpg ans swf are always cached";
        return (deliver);
-    }
-    if (req.http.Cache-Control ~ "no-cache") {
-      set obj.http.X-Cacheable = "NO:Force reload";       
-      return (pass);
     }
 
 
@@ -94,43 +101,16 @@ sub vcl_fetch {
     #Allow 34 hour stale content, before an error 500/404 is thrown. When a backend server is not responding
 	# allow varnish to server stale content for 24 hours afters its expirery.
     set obj.grace = 24h;
+
 	#Allow edgeside includes
 	esi;
-	if (req.url ~ ".*type=978.*") {
+	
+	if (obj.http.X-Typo3-NoCache) {
 		set obj.ttl = 0s;
 	} else  {
-		set obj.ttl = 0s;
+		set obj.ttl = 24h;
 	}
-
-
-    #dont cache for typo3 backend users
-    if (req.http.Cookie ~ ".*be_typo_userXXX=.*") {
-        #set obj.http.X-Cacheable = "NO:Logged in to TYPO3 Backend";
-		#return (pass); 
-    } elsif ( req.http.Cookie ~ ".*varnish_logged_in=1.*" ) {
-		#The extension moc_varnish registeres a cookie varnish_logged_in=1 when logged into the frontend.
-        set obj.http.X-Cacheable = "NO:Logged in to TYPO3 Frontend (special cookie)";
-        return (pass);
-    } elsif ( obj.http.Cache-Control ~ "private") {
-        set obj.http.X-Cacheable = "NO:Cache-Control=private";
-		return (pass);
-    } elsif ( obj.ttl < 1s ) {
-    	# Here we override the default setting of the cache control headers, we force caching
-        set obj.ttl   = 24h;
-        set obj.http.X-Cacheable = "YES:FORCED for 3600s";
-
-		#return (deliver);
-    } else {
-        set obj.http.X-Cacheable = "YES";
-		#return (deliver);
-    }
-
-	#Dont cache if trying to set cookie.
-    if (obj.http.Set-Cookie) {
-        return (pass);
-    }
-
-    return (deliver);
+	return (deliver);
 }
 
 sub vcl_pipe {

@@ -27,10 +27,12 @@ function user_renderint($content,$conf) {
 					$incContent = $INTiS_cObj->callUserFunction($data['INTincScript'][$key]['postUserFunc'], $INTiS_config[$INTiS_key]['conf'], $INTiS_config[$INTiS_key]['content']);
 				break;
 			}
+			header("X-Typo3-NoCache: true");
 			return $incContent;;
 		}		
 	}
 	//@TODO: Somehow tell VArnish, that this content is not available, or somehow render it...
+	
 	return "Unrendered, not in Cache..";
 	//t3lib_div::debug($incContent,"Content");
 	//t3lib_div::debug($GLOBALS['TSFE']->config['INTincScript'],"Gen");
