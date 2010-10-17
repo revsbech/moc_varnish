@@ -27,9 +27,9 @@ function user_renderint($content,$conf) {
 					$incContent = $INTiS_cObj->callUserFunction($data['INTincScript'][$key]['postUserFunc'], $INTiS_config[$INTiS_key]['conf'], $INTiS_config[$INTiS_key]['content']);
 				break;
 			}
-			//@TODO: NAme variable differently
 						
-			
+			header("X-ESI-RESPONSE");
+
 			$conf = $data['INTincScript'][$key]['conf'];
 			if($conf['max_age']) {
 				header("Cache-control: max-age=".intval($conf['max_age']));

@@ -104,15 +104,19 @@ sub vcl_fetch {
 
 	#Allow edgeside includes
 	esi;
+
+
+	#Since we rely on TYPO to send the correct Cache-control headers, we do nothing except for removing the cache-control headers before output
+	
+	#Make sure that We remove alle cache headers, so the Browser does not cache it for us!
+	remove obj.http.Cache-Control;
+	remove obj.http.Expires;
+	remove obj.http.Last-Modified;
+	remove obj.http.ETag;
+	remove obj.http.Pragma;
 	
 	
-	//No caching of ESI responses
-	if (obj.http.X-ESI-RESPONSE) {
-		set obj.ttl = 0s;
-		return (pass);
-	} else {
-		set obj.ttl = 24h;
-	}
+	
 	return (deliver);
 }
 

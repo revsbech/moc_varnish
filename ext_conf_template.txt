@@ -1,0 +1,2 @@
+# cat=basic/enable; type=boolean; label=Convert USER_INT to ESI for Varnish requests.
+enableESI = 1

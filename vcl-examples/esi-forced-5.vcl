@@ -105,11 +105,9 @@ sub vcl_fetch {
 	#Allow edgeside includes
 	esi;
 	
-	
-	//No caching of ESI responses
+	//Force cache for 5 seconds for ESI responses, otherwise cache for 24 hours
 	if (obj.http.X-ESI-RESPONSE) {
-		set obj.ttl = 0s;
-		return (pass);
+		set obj.ttl = 5s;
 	} else {
 		set obj.ttl = 24h;
 	}
