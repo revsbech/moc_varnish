@@ -27,25 +27,24 @@ function user_renderint($content,$conf) {
 					$incContent = $INTiS_cObj->callUserFunction($data['INTincScript'][$key]['postUserFunc'], $INTiS_config[$INTiS_key]['conf'], $INTiS_config[$INTiS_key]['content']);
 				break;
 			}
-			header("X-Typo3-NoCache: true");
-			
+			//@TODO: NAme variable differently
+						
 			
 			$conf = $data['INTincScript'][$key]['conf'];
 			if($conf['max_age']) {
 				header("Cache-control: max-age=".intval($conf['max_age']));
 			}
-			
-			//header("Cache-control: max-age=".intval(5));
 			$incContent .= t3lib_div::view_array($data['INTincScript'][$key]['conf']); 
 			return $incContent;
+		} else {
+			header("X-TYPO3-DISABLE-VARNISHCACHE: true");
+			print date("d/m-Y H:m:i").": Cache for page found, but there is no configuartion for USER_INT with hash ".$key." in cache record...".t3lib_div::view_array($data);
+			exit();
 		}		
 	}
 	//@TODO: Somehow tell VArnish, that this content is not available, or somehow render it...
-	
-	return "Unrendered, not in Cache..";
-	//t3lib_div::debug($incContent,"Content");
-	//t3lib_div::debug($GLOBALS['TSFE']->config['INTincScript'],"Gen");
-	
-	//exit();
-	//return $GLOBALS['TSFE']->INTincScript_process();
+	header("X-TYPO3-DISABLE-VARNISHCACHE: true");
+	print date("d/m-Y H:m:i").": Unable to find cache for page";
+	exit();
+
 }

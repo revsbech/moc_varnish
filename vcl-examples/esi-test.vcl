@@ -114,12 +114,10 @@ sub vcl_fetch {
 	
 	
 	//Do nothing, allow TYPO3 to send correnct cache headers.
-	if (obj.http.X-Typo3-NoCache) {
-		//set obj.ttl = 5s;
-		//return (deliver);
-		//Use default Time to live.
-	} else  {
-		//set obj.ttl = 24h;
+	if (obj.http.X-TYPO3-DISABLE-VARNISHCACHE) {
+		set obj.ttl = 0s;
+		remove obj.http.X-TYPO3-DISABLE-VARNISHCACHE;
+		return (pass);
 	}
 	return (deliver);
 }
