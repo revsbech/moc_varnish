@@ -1,9 +1,17 @@
 <?php
 
 
+
+
 class ux_tslib_cObj extends tslib_cObj {
 	function USER($conf, $ext = '') {
+		//return parent::USER($conf,$ext);
+		
 		$content = '';
+		if($conf['varnish.']['no_esi']) {
+			return parent::USER($conf,$ext);
+		}
+		
 		if($ext == "INT" && !t3lib_div::_GP('from_varnish')) {
 			$this->userObjectType = false;
 				$this->userObjectType = self::OBJECTTYPE_USER_INT;

@@ -105,10 +105,21 @@ sub vcl_fetch {
 	#Allow edgeside includes
 	esi;
 	
+	#Make sure that We remove alle cache headers, so the Browser does not cache it for us!
+	remove obj.http.Cache-Control;
+	remove obj.http.Expires;
+	remove obj.http.Last-Modified;
+	remove obj.http.ETag;
+	remove obj.http.Pragma;
+	
+	
+	//Do nothing, allow TYPO3 to send correnct cache headers.
 	if (obj.http.X-Typo3-NoCache) {
-		set obj.ttl = 0s;
+		//set obj.ttl = 5s;
+		//return (deliver);
+		//Use default Time to live.
 	} else  {
-		set obj.ttl = 24h;
+		//set obj.ttl = 24h;
 	}
 	return (deliver);
 }

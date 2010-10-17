@@ -28,7 +28,16 @@ function user_renderint($content,$conf) {
 				break;
 			}
 			header("X-Typo3-NoCache: true");
-			return $incContent;;
+			
+			
+			$conf = $data['INTincScript'][$key]['conf'];
+			if($conf['max_age']) {
+				header("Cache-control: max-age=".intval($conf['max_age']));
+			}
+			
+			//header("Cache-control: max-age=".intval(5));
+			$incContent .= t3lib_div::view_array($data['INTincScript'][$key]['conf']); 
+			return $incContent;
 		}		
 	}
 	//@TODO: Somehow tell VArnish, that this content is not available, or somehow render it...
