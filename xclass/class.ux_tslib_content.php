@@ -5,9 +5,18 @@
 
 class ux_tslib_cObj extends tslib_cObj {
 	function USER($conf, $ext = '') {
-		//return parent::USER($conf,$ext);
+		global $TYPO3_CONF_VARS;
 		
+		$extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_varnish']);
 		$content = '';
+		
+			//Dont render ESI if content is not fetched from Varnish.
+		/*
+		 if($extConf['onlyRenderESIThroughVarnish'] && !$_SERVER['HTTP_X_VARNISH']) {
+			t3lib_div::debug($_SERVER);
+			return 'DISABLED NOT FROM VARNISH'.parent::user($conf,$ext);
+		}
+		*/
 		if($conf['varnish.']['no_esi']) {
 			return parent::USER($conf,$ext);
 		}

@@ -2,7 +2,7 @@
 
 
 function user_renderint($content,$conf) {
-	global $TSFE;
+	global $TSFE,$TYPO3_CONF_VARS;
 	$key = t3lib_div::_GP('key');
 	$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*','cache_pages','page_id='.intval($GLOBALS['TSFE']->id));
 	if($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
@@ -29,12 +29,14 @@ function user_renderint($content,$conf) {
 			}
 						
 			header("X-ESI-RESPONSE");
-
+			$EXTconfArr = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_varnish']);
 			$conf = $data['INTincScript'][$key]['conf'];
+			
 			if($conf['max_age']) {
 				header("Cache-control: max-age=".intval($conf['max_age']));
-			}
-			$incContent .= t3lib_div::view_array($data['INTincScript'][$key]['conf']); 
+			} elseif(intval($EXTconfArr['userINT_forceTTL'])>0) {
+				header("Cache-control: max-age=".intval($EXTconfArr['userINT_forceTTL']));
+			}			
 			return $incContent;
 		} else {
 			header("X-TYPO3-DISABLE-VARNISHCACHE: true");
