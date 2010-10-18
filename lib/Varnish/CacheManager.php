@@ -16,7 +16,6 @@ interface Varnish_CacheMangerInterface {
 
 class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
 	
-	protected $varnishURL = 'http://localhost/';
 
 	protected $clearQueue = array();
 	/**
@@ -27,15 +26,11 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
 	 *
 	 * @param unknown_type $varnish
 	 */
-	public function __construct($varnish) {
-		$this->varnishURL = $url;
-		$this->varnishURL = 'http://localhost/';
+	public function __construct() {
 	}
 	
 	public function clearCacheForUrl($url, $domain="", $scheme ="http://") {
 		if($domain) {
-			//$regex = "req.http.host == $domain && req.url ~ $url";
-			
 			$path = $scheme.$domain.$url;
 		} else {
 			$path = t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST').'/'.$url;

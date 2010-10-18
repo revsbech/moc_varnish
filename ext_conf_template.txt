@@ -1,6 +1,11 @@
 # cat=basic/enable; type=boolean; label=Convert USER_INT to ESI for Varnish requests.
 enableESI = 1
 
+# cat=basic/enable; type=boolean; label=Clear Varnish cache on requests
+enableClearVarnishCache = 1
+
+
 # cat=basic/; type=int; label=Default TTL for USER_INT object [seconds]. By setting this, you can force TYPO3 to cache all USER_INT objects for a given amount of secionds. This drastically imporves performance, but you need to handle content for users that are logged in!
 userINT_forceTTL = 
+
 
