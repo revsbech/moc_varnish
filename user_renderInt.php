@@ -32,8 +32,9 @@ function user_renderint($content,$conf) {
 			$EXTconfArr = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_varnish']);
 			$conf = $data['INTincScript'][$key]['conf'];
 			
-			if($conf['max_age']) {
-				header("Cache-control: max-age=".intval($conf['max_age']));
+			$max_age = $INTiS_cObj->stdWrap($conf['max_age'],$conf['max_age.']);
+			if($max_age ) {
+				header("Cache-control: max-age=".intval($max_age));
 			} elseif(intval($EXTconfArr['userINT_forceTTL'])>0) {
 				header("Cache-control: max-age=".intval($EXTconfArr['userINT_forceTTL']));
 			}			
