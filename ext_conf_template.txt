@@ -1,7 +1,7 @@
 # cat=basic/enable; type=boolean; label=Convert USER_INT to ESI for Varnish requests.
 enableESI = 1
 
-# cat=basic/enable; type=boolean; label=Clear Varnish cache on requests
+# cat=basic/enable; type=boolean; label=Send PURGE request when TYPO3 clears cache.
 enableClearVarnishCache = 1
 
 
