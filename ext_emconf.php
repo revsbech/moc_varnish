@@ -28,8 +28,8 @@ $EM_CONF[$_EXTKEY] = array(
 	'modify_tables' => '',
 	'clearCacheOnLoad' => 0,
 	'lockType' => '',
-	'author_company' => '',
-	'version' => '0.0.0',
+	'author_company' => 'MOC Systems',
+	'version' => '0.9.0',
 	'constraints' => array(
 		'depends' => array(
 		),
