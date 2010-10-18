@@ -12,17 +12,25 @@ backend default {
 	.port = "8080";
 }
 
+acl purge {
+        "localhost";
+}
+
 
 sub vcl_recv {
 
-
 	if (req.request == "PURGE") {
+    	if (!client.ip ~ purge) {
+            error 405 "Not allowed.";
+    	}
+	
 		//Use this for varnish 3.0, the host part is not supported in Varnish 2.1	
 		//purge("req.url ~ " req.url " && req.http.host == " req.http.host);
 		purge("req.url ~ " req.url);
 		error 200 "Purged.";
 	}
-	
+
+
     if(req.backend.healthy) {
 		set req.grace = 10m;
     } else {
@@ -79,8 +87,19 @@ sub vcl_recv {
     return (lookup);
 }
 
+#sub vcl_hit {
+#        if (req.request == "PURGE") {
+#                set obj.ttl = 0s;
+#                error 200 "Purged.";
+#        }
+#}
+
+	
+
 sub vcl_fetch {
 
+
+	
 	#Respect force-reload, and clear cache accordingly. This means that a ctrl-reload will acutally purge 
 	# the cache for this URL.
 	if (req.http.Cache-Control ~ "no-cache") {
@@ -105,15 +124,19 @@ sub vcl_fetch {
 
 	#Allow edgeside includes
 	esi;
+
+
+	#Since we rely on TYPO to send the correct Cache-control headers, we do nothing except for removing the cache-control headers before output
+	
+	#Make sure that We remove alle cache headers, so the Browser does not cache it for us!
+	remove obj.http.Cache-Control;
+	remove obj.http.Expires;
+	remove obj.http.Last-Modified;
+	remove obj.http.ETag;
+	remove obj.http.Pragma;
 	
 	
-	//No caching of ESI responses
-	if (obj.http.X-ESI-RESPONSE) {
-		set obj.ttl = 0s;
-		return (pass);
-	} else {
-		set obj.ttl = 24h;
-	}
+	
 	return (deliver);
 }
 

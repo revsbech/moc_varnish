@@ -23,16 +23,14 @@ class URL_Finder_ServiceLocator {
 	public function getUrlFromPageID($uid) {
 		foreach($this->URLFinders as $finder) {
 			if($urls = $finder->getURLFromPageID($uid)) {
-				if(count($urls) > 0) {
-					return $urls;
-				}
-			}
+				return $urls;
+			} 
+			return array();
 		}
 	}
 	
 	/**
 	 * Normalizes a path, makes sure that the path always contains a trailing slash.
-	 * Enter description here ...
 	 * @param unknown_type $path
 	 */
 	protected function normalizePath($path) {
@@ -50,16 +48,16 @@ class URL_Finder_RealURL_PathCache implements URL_Finder_interface {
 		if($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			foreach($this->getDomainsFromRootpageId($row['rootpage_id']) as $domain) {
 				$url = array();
-				$url['pagepath'] = $row['pagepath'];
+				$url['pagepath'] = $row['pagepath'].'/';
 				if($domain != '_DEFAULT') {
 					$url['domain'] = $domain;
 				}
 				$urls[] = $url;
 			}
 			
-			return $urls;
+			
 		} 
-		return false;
+		return $urls;	
 	}
 	
 	

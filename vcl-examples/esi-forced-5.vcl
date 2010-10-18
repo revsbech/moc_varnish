@@ -14,14 +14,13 @@ backend default {
 
 
 sub vcl_recv {
-	#This part is very important in respect to moc_varnish. If we get a PURGE request, we check agains a
-	# for permissions, and if granted, we make a purge of whatever is in the X-Varnish-purge header of the
-	# request.
 	if (req.request == "PURGE") {
-		purge("" req.http.X-Varnish-purge);
-		return(lookup);
+		//Use this for varnish 3.0, the host part is not supported in Varnish 2.1	
+		//purge("req.url ~ " req.url " && req.http.host == " req.http.host);
+		purge("req.url ~ " req.url);
+		error 200 "Purged.";
 	}
-
+	
     if(req.backend.healthy) {
 		set req.grace = 10m;
     } else {

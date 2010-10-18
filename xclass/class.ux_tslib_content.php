@@ -17,7 +17,7 @@ class ux_tslib_cObj extends tslib_cObj {
 			return 'DISABLED NOT FROM VARNISH'.parent::user($conf,$ext);
 		}
 		*/
-		if($conf['varnish.']['no_esi']) {
+		if($conf['no_esi']) {
 			return parent::USER($conf,$ext);
 		}
 		
