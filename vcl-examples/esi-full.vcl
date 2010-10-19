@@ -63,13 +63,6 @@ sub vcl_recv {
         return (pipe);
     }
 
-    #Respect force-reload, and clear cache accordingly. This means that a ctrl-reload will acutally purge 
-    # the cache for this URL.
-    #if (req.http.Cache-Control ~ "no-cache") {
-    #   purge_url(req.url);
-    #   return (pass);
-    #}
-
     #Always cache all images
     if (req.url ~ "\.(png|gif|jpg|swf)$") {
       return(lookup);
@@ -78,22 +71,18 @@ sub vcl_recv {
 	
 
     ##Do not cache if either be_typo_user
-	#Disabled for testing purposes
+	# Disabled for testing purposes
     #if (req.http.Authorization || req.http.Cookie ~ ".*be_typo_user=.*") {
     #    return (pass); 
     #}
+	#Instead of disabling for backend users, we could simple just disable all backend scripts.
+	if( req.url ~ "^/typo3/.*") {
+		return (pass);
+	}
 
 
     return (lookup);
 }
-
-#sub vcl_hit {
-#        if (req.request == "PURGE") {
-#                set obj.ttl = 0s;
-#                error 200 "Purged.";
-#        }
-#}
-
 	
 
 sub vcl_fetch {

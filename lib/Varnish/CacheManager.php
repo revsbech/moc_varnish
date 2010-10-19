@@ -38,7 +38,7 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
 		
 		$this->clearQueue[] = $path;
 	
-		//print "Clearing cache for $url ($path) <br />";
+		
 	}
 	
 	public function excute() {
@@ -52,6 +52,7 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
 				$ch = $this->getCurlHandleForCacheClearing($path);
 				$curl_handles[] = $ch;
 				curl_multi_add_handle($mh, $ch);
+				//print "Clearing cache for  ($path) <br />";
 				//curl_exec($ch);		
 			}
 

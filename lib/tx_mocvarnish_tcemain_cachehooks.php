@@ -13,7 +13,6 @@ class tx_mocvarnish_tcemain_cachehooks {
 				case 'all':
 					$varnishCacheMgm = new Varnish_CacheManager_CURLHTTP();
 					$varnishCacheMgm->clearCacheForUrl(".*");
-					print "Calling";
 					break;
 			}
 		}
