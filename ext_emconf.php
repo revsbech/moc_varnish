@@ -12,7 +12,7 @@
 
 $EM_CONF[$_EXTKEY] = array(
 	'title' => 'MOC Varnish',
-	'description' => 'Extension that provides usefull features, liik cache-clearing and fe_login cookie. Usefull when using varnish.',
+	'description' => 'Extension that provides usefull features when using Varnish with TYPO3, like cache-clearing and automatic ESI.',
 	'category' => '',
 	'author' => 'Jan-Erik Revsbech',
 	'author_email' => 'janerik@mocsystems.com',
@@ -21,7 +21,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'conflicts' => '',
 	'priority' => '',
 	'module' => '',
-	'state' => 'alpha',
+	'state' => 'stable',
 	'internal' => '',
 	'uploadfolder' => 0,
 	'createDirs' => '',
@@ -29,7 +29,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'clearCacheOnLoad' => 0,
 	'lockType' => '',
 	'author_company' => 'MOC Systems',
-	'version' => '0.9.0',
+	'version' => '0.0.0',
 	'constraints' => array(
 		'depends' => array(
 		),
