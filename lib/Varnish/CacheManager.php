@@ -31,11 +31,14 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
 	
 	public function clearCacheForUrl($url, $domain="", $scheme ="http://") {
 		if($domain) {
-			$path = $scheme.$domain.$url;
+#			$path = $scheme.$domain.$url;
+            #this should check if the domain ends with or the url starts with a / KJ@MOC
+			$path = $scheme.$domain.'/'.$url; #MOD by KJ@MOC
 		} else {
 			$path = t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST').'/'.$url;
 		}
-		
+	
+#        print $path; exit();
 		$this->clearQueue[] = $path;
 	
 		

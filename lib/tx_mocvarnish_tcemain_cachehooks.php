@@ -36,9 +36,15 @@ class tx_mocvarnish_tcemain_cachehooks {
 				//@TODO: Make a setting where its possible to set a default domain if no domain was found.
 				if(!$url['domain']) {
 					//$url['domain'] = 'edntest.local';
+                // MOD BY KJ@MOC - because no domain when clearing cache makes it stall badly
+                // so we exit the function without clearing the cache
+                continue;
+                //END MOD
 				}
+
 				//print "URL: ".t3lib_div::print_array($url);
 				$varnishCacheMgm->clearCacheForUrl($url['pagepath'],$url['domain']);
+#				print "caught: " . $url['pagepath'] ."-".$url['domain']; exit();
 				//exit();
 			}
 		}
