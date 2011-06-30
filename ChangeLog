@@ -1,3 +1,8 @@
+2011-07-02 Chrisitan Jul Jensen <christian@mocsystems.com>
+
+	* Updated to make it compatible to TYPO3 4.5
+	* Updated VCL examples to Varnish 2.1
+
 2010-03-17 Jan-Erik Revsbech  <janerik@mocsystems.com>
 
 	* initial code generated with kickstarter

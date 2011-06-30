@@ -2,13 +2,15 @@
 
 
 function user_renderint($content,$conf) {
-	global $TSFE,$TYPO3_CONF_VARS;
 	$key = t3lib_div::_GP('key');
 	$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*','cache_pages','page_id='.intval($GLOBALS['TSFE']->id));
 	if($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 		
 		$data = unserialize($row['cache_data']);		
 			//Copied from tslib_fe
+		/**
+		 * @todo bring to sync with 4.5 code
+		 */
 		if($data['INTincScript'][$key]) {
 			$INTiS_cObj = unserialize($data['INTincScript'][$key]['cObj']);
 			/* @var $INTiS_cObj tslib_cObj */
@@ -41,11 +43,11 @@ function user_renderint($content,$conf) {
 			return $incContent;
 		} else {
 			header("X-TYPO3-DISABLE-VARNISHCACHE: true");
-			print date("d/m-Y H:m:i").": Cache for page found, but there is no configuartion for USER_INT with hash ".$key." in cache record...".t3lib_div::view_array($data);
+			print date("d/m-Y H:m:i").": Cache for page found, but there is no configuration for USER_INT with hash ".$key." in cache record...".t3lib_div::view_array($data);
 			exit();
 		}		
 	}
-	//@TODO: Somehow tell VArnish, that this content is not available, or somehow render it...
+	//@TODO: Somehow tell Varnish, that this content is not available, or somehow render it...
 	header("X-TYPO3-DISABLE-VARNISHCACHE: true");
 	print date("d/m-Y H:m:i").": Unable to find cache for page";
 	exit();
