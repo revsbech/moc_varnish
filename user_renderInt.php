@@ -2,7 +2,7 @@
 
 
 function user_renderint($content,$conf) {
-	$key = t3lib_div::_GP('key');
+	$key = t3lib_div::_GET('key');
 	$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*','cache_pages','page_id='.intval($GLOBALS['TSFE']->id));
 	if($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 		
