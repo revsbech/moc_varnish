@@ -1,19 +1,26 @@
 <?php
 
 class ux_tslib_content_UserInternal extends tslib_content_UserInternal {
-	function render($conf = array()) {
-		$content = '';
-		if($conf['no_esi']) {
-			return parent::render($conf);
+
+	/**
+	 * Render the USER_INT cObject
+	 *
+	 * @param	array		Array of TypoScript properties
+	 * @return	string		Output
+	 */
+	public function render($conf = array()) {
+		$content = parent::render($conf);
+
+		if ($conf['no_esi'] == FALSE && t3lib_div::_GP('from_varnish') == FALSE) {
+			$substKey = str_replace(array('<!--','-->'), '', $content);
+			$url = t3lib_div::getIndpEnv('TYPO3_SITE_PATH') .
+				'?id='.$GLOBALS['TSFE']->id .
+				'&type=978&key='.$substKey .
+				'&from_varnish=1';
+			$content = '<esi:include src="'.$url.'" />';
 		}
-		
-		if(!t3lib_div::_GP('from_varnish')) {
-			$substKey = str_replace(array('<!--','-->'),'',parent::render($conf));
-			$url = '?id='.$GLOBALS['TSFE']->id.'&type=978&key='.$substKey.'&from_varnish=1';
-			$content .= '<esi:include src="'.$url.'" />';			
-			return $content;
-		}
-		return parent::render($conf);
+
+		return $content;
 	}
 	
 }
