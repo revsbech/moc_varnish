@@ -26,7 +26,7 @@ function user_renderint($content,$conf) {
 					$incContent = $INTiS_cObj->USER($data['INTincScript'][$key]['conf']);
 				break;
 				case 'POSTUSERFUNC':
-					$incContent = $INTiS_cObj->callUserFunction($data['INTincScript'][$key]['postUserFunc'], $INTiS_config[$INTiS_key]['conf'], $INTiS_config[$INTiS_key]['content']);
+					$incContent = $INTiS_cObj->callUserFunction($data['INTincScript'][$key]['postUserFunc'], $data['INTincScript'][$key]['conf'], $data['INTincScript'][$key]['content']);
 				break;
 			}
 						
