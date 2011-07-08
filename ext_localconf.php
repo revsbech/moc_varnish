@@ -1,7 +1,8 @@
-<?php 
+<?php
 require_once(t3lib_extMgm::extPath($_EXTKEY).'lib/tx_mocvarnish_tcemain_cachehooks.php');
 
 $confArr = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_varnish']);
+
 if($confArr['enableClearVarnishCache']) {
 	$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearPageCacheEval'][] = 'tx_mocvarnish_tcemain_cachehooks->clearCacheForListOfUids';
 	$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearCachePostProc'][] = 'tx_mocvarnish_tcemain_cachehooks->clearCacheCmd';

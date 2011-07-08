@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 interface URL_Finder_interface {
 	public function getURLFromPageID($uid);
@@ -10,25 +10,26 @@ class URL_Finder_ServiceLocator {
 	public function injectURLFinder(URL_Finder_interface $finder) {
 		$this->URLFinders[] = $finder;
 	}
-	
+
 	/**
-	 * Return URL from pageID. 
+	 * Return URL from pageID.
 	 * Will look through all registered services, and use the first one that finds the URL.
-	 * It returns an array where each entry is an associative array with domain and pagepath. 
-	 * If the service that locates the URL is unable to determine from which domain this URL is found from, the 
+	 * It returns an array where each entry is an associative array with domain and pagepath.
+	 * If the service that locates the URL is unable to determine from which domain this URL is found from, the
 	 * domain key is not set.
 	 * @param int $uid
 	 * @return array An array of all found URL for this page id.
-	 */	
+	 */
 	public function getUrlFromPageID($uid) {
 		foreach($this->URLFinders as $finder) {
 			if($urls = $finder->getURLFromPageID($uid)) {
 				return $urls;
-			} 
+			}
+			t3lib_div::devLog('Unable to determine pageURL for page with uid ' . $uid, 'moc_varnish', 2);
 			return array();
 		}
 	}
-	
+
 	/**
 	 * Normalizes a path, makes sure that the path always contains a trailing slash.
 	 * @param unknown_type $path
@@ -44,7 +45,7 @@ class URL_Finder_ServiceLocator {
 class URL_Finder_RealURL_PathCache implements URL_Finder_interface {
 	public function getURLFromPageID($uid) {
 		$urls = array();
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*','tx_realurl_pathcache','page_id='.intval($uid).' AND expire = 0');
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*','tx_realurl_pathcache','page_id='.intval($uid).' AND expire > ' .time());
 		if($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			foreach($this->getDomainsFromRootpageId($row['rootpage_id']) as $domain) {
 				$url = array();
@@ -54,16 +55,15 @@ class URL_Finder_RealURL_PathCache implements URL_Finder_interface {
 				}
 				$urls[] = $url;
 			}
-			
-			
-		} 
-		return $urls;	
+
+		}
+		return $urls;
 	}
-	
-	
+
+
 	/**
-	 * Given a certain page id, looks through RealURL conf to find all domains with this page as root id. 
-	 * 
+	 * Given a certain page id, looks through RealURL conf to find all domains with this page as root id.
+	 *
 	 * @param unknown_type $uid
 	 */
 	protected function getDomainsFromRootpageId($uid) {

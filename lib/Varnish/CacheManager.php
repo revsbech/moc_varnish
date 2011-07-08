@@ -51,7 +51,7 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
 				$ch = $this->getCurlHandleForCacheClearing($path);
 				$curl_handles[] = $ch;
 				curl_multi_add_handle($mh, $ch);
-				t3lib_div::devLog(curl_exec($ch),'moc_varnish');
+				t3lib_div::devLog('Clearing cache for ' . $path, 'moc_varnish');
 			}
 
 			$active = null;
