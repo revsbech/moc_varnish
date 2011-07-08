@@ -30,7 +30,7 @@ function user_renderint($content,$conf) {
 				break;
 			}
 						
-			header("X-ESI-RESPONSE");
+			header("X-ESI-RESPONSE: 1");
 			$EXTconfArr = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_varnish']);
 			$conf = $data['INTincScript'][$key]['conf'];
 			
