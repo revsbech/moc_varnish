@@ -42,10 +42,21 @@ class URL_Finder_ServiceLocator {
 	}
 }
 
-class URL_Finder_RealURL_PathCache implements URL_Finder_interface {
+class URL_Finder_RealURL_PathCache implements URL_Finder_interface, t3lib_Singleton {
+
+	/**
+	 * @var array
+	 */
+	protected $conf;
+
+	public function __construct() {
+		$this->conf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_varnish']);
+	}
+
 	public function getURLFromPageID($uid) {
 		$urls = array();
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*','tx_realurl_pathcache','page_id='.intval($uid).' AND expire > ' .time());
+
 		if($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			foreach($this->getDomainsFromRootpageId($row['rootpage_id']) as $domain) {
 				$url = array();
@@ -64,11 +75,18 @@ class URL_Finder_RealURL_PathCache implements URL_Finder_interface {
 	/**
 	 * Given a certain page id, looks through RealURL conf to find all domains with this page as root id.
 	 *
+	 * The method takes the override_domains Extconf option into account!
+	 *
 	 * @param unknown_type $uid
+	 * @return array
 	 */
 	protected function getDomainsFromRootpageId($uid) {
 		global $TYPO3_CONF_VARS;
 		$domains = array();
+		if($this->conf['override_domains']) {
+			return t3lib_div::trimExplode(',',$this->conf['override_domains']);
+		}
+
 		foreach($TYPO3_CONF_VARS['EXTCONF']['realurl'] as $domain=>$conf) {
 			if($conf['pagePath']['rootpage_id'] == $uid) {
 				$domains[] = $domain;

@@ -6,6 +6,9 @@ enableClearVarnishCache = 1
 
 
 # cat=basic/; type=int; label=Default TTL for USER_INT object [seconds]. By setting this, you can force TYPO3 to cache all USER_INT objects for a given amount of secionds. This drastically imporves performance, but you need to handle content for users that are logged in!
-userINT_forceTTL = 
+userINT_forceTTL =
+
+# cat=RealURL/; type=string; label=Override domain: Normally the RealURL finder will return one URL for all domains found in the RealURL configuration. With this option, you can override the domains. Specify domains comma separated, and only URLs for these domains will be cleared. The domains does not have to be in the RealURL conf.
+override_domains =
 
 
