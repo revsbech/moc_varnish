@@ -4,6 +4,8 @@ enableESI = 1
 # cat=basic/enable; type=boolean; label=Send PURGE request when TYPO3 clears cache.
 enableClearVarnishCache = 1
 
+# cat=basic/; type=boolean; label=Write speciel cookie when logged in: If set (default is no), TYPO3 will write a special cookie that your varnish VCL configuration can use to disble cache for logged in users.
+writeUserLoginCookie=0
 
 # cat=basic/; type=int; label=Default TTL for USER_INT object [seconds]. By setting this, you can force TYPO3 to cache all USER_INT objects for a given amount of secionds. This drastically imporves performance, but you need to handle content for users that are logged in!
 userINT_forceTTL =
