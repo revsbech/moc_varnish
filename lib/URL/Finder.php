@@ -55,8 +55,7 @@ class URL_Finder_RealURL_PathCache implements URL_Finder_interface, t3lib_Single
 
 	public function getURLFromPageID($uid) {
 		$urls = array();
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*','tx_realurl_pathcache','page_id='.intval($uid).' AND expire > ' .time());
-
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*','tx_realurl_pathcache','page_id='.intval($uid).' AND ( expire > ' .time() . ' OR expire=0)');
 		if($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			foreach($this->getDomainsFromRootpageId($row['rootpage_id']) as $domain) {
 				$url = array();
