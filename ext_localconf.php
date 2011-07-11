@@ -14,6 +14,7 @@ if($confArr['enableESI']) {
 	if (t3lib_div::int_from_ver(TYPO3_version) < 4005000) {
 		$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['tslib/class.tslib_content.php'] = t3lib_extMgm::extPath($_EXTKEY).'xclass/class.ux_tslib_content_4-4.php';
 	} else {
+		$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['tslib/class.tslib_content.php'] = t3lib_extMgm::extPath($_EXTKEY).'xclass/class.ux_tslib_content_4-5.php';
 		$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['tslib/content/class.tslib_content_contentobjectarrayinternal.php'] = t3lib_extMgm::extPath($_EXTKEY).'xclass/class.ux_tslib_content_ContentObjectArrayInternal.php';
 		$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['tslib/content/class.tslib_content_phpscriptinternal.php'] = t3lib_extMgm::extPath($_EXTKEY).'xclass/class.ux_tslib_content_PhpScriptInternal.php';
 		$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['tslib/content/class.tslib_content_userinternal.php'] = t3lib_extMgm::extPath($_EXTKEY).'xclass/class.ux_tslib_content_UserInternal.php';
