@@ -1,6 +1,5 @@
 <?php
 
-
 function user_renderint($content,$conf) {
 	$key = t3lib_div::_GET('key');
 	$identifier = t3lib_div::_GET('identifier');
@@ -74,8 +73,9 @@ function user_renderint($content,$conf) {
 	if($data['INTincScript'][$key]) {
 		$INTiS_cObj = unserialize($data['INTincScript'][$key]['cObj']);
 		/* @var $INTiS_cObj tslib_cObj */
-		$INTiS_cObj->INT_include=1;
-		switch($data['INTincScript'][$key]['type'])	{
+		$INTiS_cObj->INT_include = 1;
+
+		switch($data['INTincScript'][$key]['type']) {
 			case 'SCRIPT':
 				$incContent = $INTiS_cObj->PHP_SCRIPT($data['INTincScript'][$key]['conf']);
 			break;
@@ -90,25 +90,25 @@ function user_renderint($content,$conf) {
 			break;
 		}
 
-		header("X-ESI-RESPONSE: 1");
+		header('X-ESI-RESPONSE: 1');
 		$EXTconfArr = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_varnish']);
 		$conf = $data['INTincScript'][$key]['conf'];
 
-		$max_age = $INTiS_cObj->stdWrap($conf['max_age'],$conf['max_age.']);
+		$max_age = $INTiS_cObj->stdWrap($conf['max_age'], $conf['max_age.']);
 		if($max_age ) {
-			header("Cache-control: max-age=".intval($max_age));
-		} elseif(intval($EXTconfArr['userINT_forceTTL'])>0) {
-			header("Cache-control: max-age=".intval($EXTconfArr['userINT_forceTTL']));
+			header('Cache-control: max-age=' . intval($max_age));
+		} elseif(intval($EXTconfArr['userINT_forceTTL']) > 0) {
+			header('Cache-control: max-age=' . intval($EXTconfArr['userINT_forceTTL']));
 		}
 		return $incContent;
 	} else {
-		header("X-TYPO3-DISABLE-VARNISHCACHE: true");
-		print date("d/m-Y H:m:i").": Cache for page found, but there is no configuration for USER_INT with hash ".$key." in cache record...".t3lib_div::view_array($data);
+		header('X-TYPO3-DISABLE-VARNISHCACHE: true');
+		print date('d/m-Y H:m:i') . ': Cache for page found, but there is no configuration for USER_INT with hash ' . $key . ' in cache record...' . t3lib_div::view_array($data);
 		exit();
 	}
 
-	//@TODO: Somehow tell Varnish, that this content is not available, or somehow render it...
-	header("X-TYPO3-DISABLE-VARNISHCACHE: true");
-	print date("d/m-Y H:m:i").": Unable to find cache for page";
+	// @TODO: Somehow tell Varnish, that this content is not available, or somehow render it...
+	header('X-TYPO3-DISABLE-VARNISHCACHE: true');
+	print date('d/m-Y H:m:i') . ': Unable to find cache for page';
 	exit();
 }
