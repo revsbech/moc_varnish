@@ -10,11 +10,15 @@ function user_renderint($content,$conf) {
 		exit();
 	}
 
+	// Find records in "cache_pages" which have the the requested $key set in cache_data[INTincScript].
+
 	if (TYPO3_UseCachingFramework) {
+		// Caching framework access
 		$pageCache = $GLOBALS['typo3CacheManager']->getCache('cache_pages');
 		$row = $pageCache->get($identifier);
 		$data = unserialize($row['cache_data']);
 	} else {
+		// Traditional database cache
 		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'cache_pages', 'hash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($identifier, 'cache_pages'));
 		if (count($rows) === 1) {
 			$row = $rows[0];
@@ -67,9 +71,6 @@ function user_renderint($content,$conf) {
 	}
 
 		//Copied from tslib_fe
-	/**
-	 * @todo bring to sync with 4.5 code
-	 */
 	if($data['INTincScript'][$key]) {
 		$INTiS_cObj = unserialize($data['INTincScript'][$key]['cObj']);
 		/* @var $INTiS_cObj tslib_cObj */
