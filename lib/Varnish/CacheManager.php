@@ -18,6 +18,9 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
 
 
 	protected $clearQueue = array();
+
+	protected $extConf = array();
+
 	/**
 	 *
 	 * Create an instance of the CURLHTTP cachemanager. IT takes one parameter, the http address
@@ -27,6 +30,7 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
 	 * @param unknown_type $varnish
 	 */
 	public function __construct() {
+		$this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_varnish']);
 	}
 
 	public function clearCacheForUrl($url, $domain="", $scheme ="http://") {
@@ -85,6 +89,9 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
 		curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, 'PURGE');
 		curl_setopt($curlHandle, CURLOPT_HEADER, 0);
 		curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, 1);
+		if(intval($this->extConf['overrideVarnishPort'])) {
+			curl_setopt($curlHandle, CURLOPT_PORT, intval($this->extConf['overrideVarnishPort']));
+		}
 		return $curlHandle;
 	}
 

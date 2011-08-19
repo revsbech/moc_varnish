@@ -5,7 +5,7 @@
  * set unless explicityly asked for (by setting dontSetCookie to FALSE.
  * This is done when creating new FE user sessions, and when writing stuff in the sessionData for
  * GLOBALS['TSFE']->fe_user.
- * 
+ *
  */
 class ux_tslib_feuserAuth extends tslib_feUserAuth {
 	public $dontSetCookie = TRUE;

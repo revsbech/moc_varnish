@@ -13,7 +13,11 @@ userINT_forceTTL =
 # cat=basic/; type=boolean; label=Disable set-cookie when not needed: If set (default, false), TYPO3 do not send a Set-Cookie if the generated session-id is not used for anything. It is only sent if a user is authenticating or if the setKey() method is called to store anonymous session data. After the session fixation fix for TYPO3, a new session id is generated everytime if it is not used for anything, this however implies that we can not cache the output in varnish.
 disableSetCookieWhenNotNeeded = 0
 
+# cat=basic/; type=int; label=Varnish port:If varnish is running on a different port than 80, set it here. All PURGE requests, will be made to that port instead.
+overrideVarnishPort =
+
 # cat=RealURL/; type=string; label=Override domain: Normally the RealURL finder will return one URL for all domains found in the RealURL configuration. With this option, you can override the domains. Specify domains comma separated, and only URLs for these domains will be cleared. The domains does not have to be in the RealURL conf.
 override_domains =
+
 
 
