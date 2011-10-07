@@ -23,5 +23,4 @@ class ux_tslib_content_UserInternal extends tslib_content_UserInternal {
 
 		return $content;
 	}
-	
 }

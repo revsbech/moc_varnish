@@ -31,5 +31,4 @@ class ux_tslib_feuserAuth extends tslib_feUserAuth {
 			$this->cookieIsSet = TRUE;
 		}
 	}
-
 }

@@ -17,5 +17,4 @@ class ux_tslib_cObj extends tslib_cObj {
 
 		return $content;
 	}
-	
 }

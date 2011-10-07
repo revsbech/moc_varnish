@@ -23,5 +23,4 @@ class ux_tslib_content_ContentObjectArrayInternal extends tslib_content_ContentO
 
 		return $content;
 	}
-
 }
