@@ -16,6 +16,7 @@ class ux_tslib_content_UserInternal extends tslib_content_UserInternal {
 			$url = t3lib_div::getIndpEnv('TYPO3_SITE_PATH') .
 				'?id='.$GLOBALS['TSFE']->id .
 				'&type=978&key='.$substKey .
+				'&identifier='.$GLOBALS['TSFE']->newHash .
 				'&from_varnish=1';
 			$content = '<esi:include src="'.$url.'" />';
 		}

@@ -3,10 +3,18 @@
 
 function user_renderint($content,$conf) {
 	$key = t3lib_div::_GET('key');
-	$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*','cache_pages','page_id='.intval($GLOBALS['TSFE']->id));
-	if($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+	$identifier = t3lib_div::_GET('identifier');
 
-		$data = unserialize($row['cache_data']);
+	if (empty($key) || empty($identifier)) {
+		header('X-TYPO3-DISABLE-VARNISHCACHE: true');
+		echo 'Missing GET parameters, can\'t proceed.';
+		exit();
+	}
+
+	$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'cache_pages', 'hash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($identifier, 'cache_pages'));
+	if (count($rows) === 1) {
+		$row = $rows[0];
+		$data = unserialize($row['cache_data']);		
 			//Copied from tslib_fe
 		/**
 		 * @todo bring to sync with 4.5 code
