@@ -23,5 +23,5 @@ class ux_tslib_content_PhpScriptInternal extends tslib_content_PhpScriptInternal
 
 		return $content;
 	}
-	
+
 }
