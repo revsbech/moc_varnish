@@ -11,7 +11,6 @@ function user_renderint($content,$conf) {
 	}
 
 	// Find records in "cache_pages" which have the the requested $key set in cache_data[INTincScript].
-
 	if (TYPO3_UseCachingFramework) {
 		// Caching framework access
 		$pageCache = $GLOBALS['typo3CacheManager']->getCache('cache_pages');
