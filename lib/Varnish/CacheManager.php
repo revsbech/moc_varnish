@@ -23,7 +23,7 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
 
 	/**
 	 *
-	 * Create an instance of the CURLHTTP cachemanager. IT takes one parameter, the http address
+	 * Create an instance of the CURLHTTP cachemanager. IT takes one parameter, the HTTP address
 	 * (including http://) that the Varnish server is running on. If this parameter is specified
 	 * This one is used, otherwise, the host of the URL that needs to cleared is used.
 	 *
