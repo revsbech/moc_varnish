@@ -5,7 +5,7 @@
 #Backend definitions
 #
 
-#default is localhost, on my computer Apache is running on port 8080. Change to you specific needs. See the Varnish website for exmamples of 
+#default is localhost, on my computer Apache is running on port 8080. Change to you specific needs. See the Varnish website for examples of
 #how to configures multiple backends and load-balancing etc.
 backend default {
 	.host = "127.0.0.1";
