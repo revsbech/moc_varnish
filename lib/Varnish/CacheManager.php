@@ -1,5 +1,4 @@
 <?php
-
 interface Varnish_CacheMangerInterface {
 
 	/**
@@ -7,9 +6,9 @@ interface Varnish_CacheMangerInterface {
 	 * The second paramater to the function, is the domain for which the URL should cleared.
 	 * If left empty (the default), it will be cleared for all domain.
 	 *
-	 * @param	string	$url	The URL to cleare cache for
-	 * @param	strong	$domain	The domain for which the URL should is to be cleared. If left empty, means all (The defalt is empty).
-	 * @return	TODO
+	 * @param string $url The URL to cleare cache for
+	 * @param string $domain The domain for which the URL should is to be cleared. If left empty, means all (The defalt is empty).
+	 * @return void
 	 */
 	public function clearCacheForUrl($url, $domain = '');
 
@@ -17,56 +16,68 @@ interface Varnish_CacheMangerInterface {
 
 class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
 
+	/**
+	 * @var array
+	 */
 	protected $clearQueue = array();
+
+	/**
+	 * @var array
+	 */
 	protected $extConf = array();
 
 	/**
 	 * Create an instance of the CURLHTTP cachemanager. IT takes one parameter, the HTTP address
 	 * (including http://) that the Varnish server is running on. If this parameter is specified
 	 * This one is used, otherwise, the host of the URL that needs to cleared is used.
-	 *
-	 * @param unknown_type $varnish
 	 */
 	public function __construct() {
 		$this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_varnish']);
 	}
 
 	/**
-	 * TODO
+	 * Clear cache for a given urls, possibly on a certains domain.
+	 * The second paramater to the function, is the domain for which the URL should cleared.
+	 * If left empty (the default), it will be cleared for all domain.
 	 *
-	 * @param TODO
-	 * @param TODO
-	 * @param TODO
-	 * @return TODO
+	 * @param string $url
+	 * @param string $domain
+	 * @param string $scheme
+	 * @return void
 	 */
 	public function clearCacheForUrl($url, $domain = '', $scheme = 'http://') {
 		if ($domain) {
-			// @TODO this should check if the domain ends with or the url starts with a / KJ@MOC
-			$path = $scheme . $domain . '/' . $url;
+			$parsedDomain = parse_url($domain);
+			$path = $scheme . str_replace('/', '', isset($parsedDomain['host']) ? $parsedDomain['host'] : $parsedDomain['path']);
 		} else {
-			$path = t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST') . '/' . $url;
+			$path = t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST');
 		}
-		$this->clearQueue[] = $path;
+		if (substr($url, 0, 1) !== '/') {
+			$path .= '/';
+		}
+		$path .= $url;
+		if (!in_array($url, array('.*', '/'), TRUE) && ((boolean)$this->extConf['appendWildcard'] === TRUE)) {
+			$path .= '.*';
+		}
+		array_push($this->clearQueue, $path);
 	}
 
 	/**
-	 * TODO
-	 *
-	 * @return	TODO
+	 * @return void
 	 */
 	public function execute() {
 		$curl_handles = array();
-
-		if(count($this->clearQueue) > 0) {
+		if (count($this->clearQueue) > 0) {
+			$this->clearQueue = array_unique($this->clearQueue);
+			t3lib_div::devLog('Clearing cache', 'moc_varnish', 0, $this->clearQueue);
 			$mh = curl_multi_init();
-			foreach($this->clearQueue as $path) {
+			foreach ($this->clearQueue as $path) {
 				$ch = $this->getCurlHandleForCacheClearing($path);
-				$curl_handles[] = $ch;
+				array_push($curl_handles, $ch);
 				curl_multi_add_handle($mh, $ch);
-				t3lib_div::devLog('Clearing cache for ' . $path, 'moc_varnish');
 			}
 
-			$active = null;
+			$active = NULL;
 			do {
 				$mrc = curl_multi_exec($mh, $active);
 			} while ($mrc == CURLM_CALL_MULTI_PERFORM);
@@ -79,7 +90,7 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
 				}
 			}
 
-			foreach($curl_handles as $ch) {
+			foreach ($curl_handles as $ch) {
 				curl_close($ch);
 				curl_multi_remove_handle($mh, $ch);
 			}
@@ -90,12 +101,9 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
 	}
 
 	/**
-	 * TODO
-	 *
-	 * @param	TODO
-	 * @return	TODO
+	 * @param string $url
+	 * @return resource
 	 */
-
 	protected function getCurlHandleForCacheClearing($url) {
 		$curlHandle = curl_init();
 		curl_setopt($curlHandle, CURLOPT_URL , $url);
@@ -108,14 +116,9 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
 		return $curlHandle;
 	}
 
-	/**
-	 * TODO
-	 *
-	 * @return	TODO
-	 */
 	public function __destruct() {
 		$this->execute();
 	}
-}
 
+}
 ?>

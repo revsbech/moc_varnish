@@ -4,20 +4,20 @@ enableESI = 1
 # cat=basic/enable; type=boolean; label=Send PURGE request when TYPO3 clears cache.
 enableClearVarnishCache = 1
 
-# cat=basic/; type=boolean; label=Write speciel cookie when logged in: If set (default is no), TYPO3 will write a special cookie that your varnish VCL configuration can use to disble cache for logged in users.
+# cat=basic/enable; type=boolean; label=Append wildcard:Append wildcard to single page cache clearing: Enable this if you would like to append all single page cache clearing url's with .*, so all subpages of a page are cleared when clearing page cache for a single page. This requires that the Varnish VCL matches regular expressions (~). Note that the when clearing the frontpage (/) the wildcard is not appended, otherwise all cache would be cleared when clearing the frontpage.
+appendWildcard = 1
+
+# cat=basic/enable; type=boolean; label=Write special cookie when logged in: If set (default is no), TYPO3 will write a special cookie that your varnish VCL configuration can use to disable cache for logged in users.
 writeUserLoginCookie=0
 
-# cat=basic/; type=int; label=Default TTL for USER_INT object [seconds]. By setting this, you can force TYPO3 to cache all USER_INT objects for a given amount of secionds. This drastically imporves performance, but you need to handle content for users that are logged in!
-userINT_forceTTL =
-
-# cat=basic/; type=boolean; label=Disable set-cookie when not needed: If set (default, false), TYPO3 do not send a Set-Cookie if the generated session-id is not used for anything. It is only sent if a user is authenticating or if the setKey() method is called to store anonymous session data. After the session fixation fix for TYPO3, a new session id is generated everytime if it is not used for anything, this however implies that we can not cache the output in varnish.
+# cat=basic/enable; type=boolean; label=Disable set-cookie when not needed: If set (default, false), TYPO3 do not send a Set-Cookie if the generated session-id is not used for anything. It is only sent if a user is authenticating or if the setKey() method is called to store anonymous session data. After the session fixation fix for TYPO3, a new session id is generated everytime if it is not used for anything, this however implies that we can not cache the output in varnish.
 disableSetCookieWhenNotNeeded = 0
+
+# cat=basic/; type=int; label=Default TTL for USER_INT object [seconds]. By setting this, you can force TYPO3 to cache all USER_INT objects for a given amount of seconds. This drastically improves performance, but you need to handle content for users that are logged in!
+userINT_forceTTL =
 
 # cat=basic/; type=int; label=Varnish port:If varnish is running on a different port than 80, set it here. All PURGE requests, will be made to that port instead.
 overrideVarnishPort =
 
 # cat=RealURL/; type=string; label=Override domain: Normally the RealURL finder will return one URL for all domains found in the RealURL configuration. With this option, you can override the domains. Specify domains comma separated, and only URLs for these domains will be cleared. The domains does not have to be in the RealURL conf.
 override_domains =
-
-
-
