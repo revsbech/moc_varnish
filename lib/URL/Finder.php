@@ -110,11 +110,21 @@ class URL_Finder_RealURL_PathCache implements URL_Finder_Interface, t3lib_Single
 			return t3lib_div::trimExplode(',', $this->conf['override_domains']);
 		}
 
+		$pointers = array();
 		foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['realurl'] as $domain => $conf) {
-			if (intval($conf['pagePath']['rootpage_id']) === intval($uid)) {
+			if (is_string($conf)) {
+				$pointers[$conf][] = $domain;
+			} elseif (isset($conf['pagePath']['rootpage_id']) && intval($conf['pagePath']['rootpage_id']) === intval($uid)) {
 				array_push($domains, $domain);
 			}
 		}
+
+		foreach ($pointers as $target => $mappedDomains) {
+			if (in_array($target, $domains)) {
+				$domains = array_merge($domains, $mappedDomains);
+			}
+		}
+
 		return $domains;
 	}
 
