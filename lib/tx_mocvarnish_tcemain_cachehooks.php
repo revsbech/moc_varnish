@@ -14,7 +14,7 @@ class tx_mocvarnish_tcemain_cachehooks {
 	 * @return void
 	 */
 	public function clearCacheCmd($params, &$parent) {
-		if ($parent->admin || $parent->BE_USER->getTSConfigVal('options.clearCache.pages')) {
+		if ($parent->admin || is_object($parent->BE_USER) && $parent->BE_USER->getTSConfigVal('options.clearCache.pages')) {
 			switch ($params['cacheCmd']) {
 				case 'pages':
 				case 'all':
