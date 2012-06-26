@@ -27,5 +27,6 @@ if ($config['writeUserLoginCookie']) {
 }
 
 if ($config['disableSetCookieWhenNotNeeded']) {
-	$GLOBALS['TYPO3_CONF_VARS'][TYPO3_MODE]['XCLASS']['tslib/class.tslib_feuserauth.php'] = t3lib_extMgm::extPath($_EXTKEY) . 'xclass/class.ux_tslib_feuserauth.php';
+	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['tslib/class.tslib_feuserauth.php'] = t3lib_extMgm::extPath($_EXTKEY) . 'xclass/class.ux_tslib_feuserauth.php';
+	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/felogin/pi1/class.tx_felogin_pi1.php'] = t3lib_extMgm::extPath($_EXTKEY) . 'xclass/class.ux_tx_felogin_pi1.php';
 }
