@@ -13,6 +13,9 @@ writeUserLoginCookie=0
 # cat=basic/enable; type=boolean; label=Disable set-cookie when not needed: If set (default, false), TYPO3 do not send a Set-Cookie if the generated session-id is not used for anything. It is only sent if a user is authenticating or if the setKey() method is called to store anonymous session data. After the session fixation fix for TYPO3, a new session id is generated everytime if it is not used for anything, this however implies that we can not cache the output in varnish.
 disableSetCookieWhenNotNeeded = 0
 
+# cat=basic/enable; type=boolean; label=Scheduler purge queue: Instead of sending purge request to Varnish when clearing page cache, fill a queue with purge url's to be requested by a scheduler job. This removes unnecessary delay when clearing page cache. Remember to set up the scheduler job! (suggested settings: 1 minute frequency with a limit of 10000).
+schedulerPurgeQueue = 0
+
 # cat=basic/; type=int; label=Default TTL for USER_INT object [seconds]. By setting this, you can force TYPO3 to cache all USER_INT objects for a given amount of seconds. This drastically improves performance, but you need to handle content for users that are logged in!
 userINT_forceTTL =
 

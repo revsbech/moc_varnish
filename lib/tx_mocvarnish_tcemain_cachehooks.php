@@ -5,6 +5,21 @@ require_once(t3lib_extMgm::extPath('moc_varnish') . 'lib/Varnish/CacheManager.ph
 class tx_mocvarnish_tcemain_cachehooks {
 
 	/**
+	 * @var array
+	 */
+	protected $extConf = array();
+
+	/**
+	 * @var Varnish_CacheManager_CURLHTTP
+	 */
+	protected $varnishCacheMgm;
+
+	public function __construct() {
+		$this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_varnish']);
+		$this->varnishCacheMgm = new Varnish_CacheManager_CURLHTTP();
+	}
+
+	/**
 	 * Purge the varnish cache when clearing all caches or clearing page content cache.
 	 * Finds all rootpages of the installation and clears for all domains registered
 	 * in the Realurl configuration.
@@ -18,17 +33,16 @@ class tx_mocvarnish_tcemain_cachehooks {
 			switch ($params['cacheCmd']) {
 				case 'pages':
 				case 'all':
-					$varnishCacheMgm = new Varnish_CacheManager_CURLHTTP();
 					$realurlUrlFinder = new URL_Finder_RealURL_PathCache();
-					$rootpages = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('pages.uid', 'pages, sys_template', '(is_siteroot = 1 OR (sys_template.root = 1 AND pages.uid = sys_template.pid AND NOT sys_template.deleted AND NOt sys_template.hidden)) AND NOT pages.hidden AND NOT pages.deleted', 'pages.uid');
+					$rootpages = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('pages.uid', 'pages, sys_template', '(is_siteroot = 1 OR (sys_template.root = 1 AND pages.uid = sys_template.pid AND NOT sys_template.deleted AND NOT sys_template.hidden)) AND NOT pages.hidden AND NOT pages.deleted', 'pages.uid');
 					foreach ($rootpages as $rootpage) {
 						foreach ($realurlUrlFinder->getDomainsFromRootpageId($rootpage['uid']) as $domain) {
 							if ($domain !== '_DEFAULT') {
-								$varnishCacheMgm->clearCacheForUrl('.*', $domain);
+								$this->clearCacheForUrl('.*', $domain);
 							}
 						}
 					}
-					$varnishCacheMgm->clearCacheForUrl('.*');
+					$this->clearCacheForUrl('.*');
 				break;
 			}
 		}
@@ -44,13 +58,31 @@ class tx_mocvarnish_tcemain_cachehooks {
 	public function clearCacheForListOfUids($params, &$parent) {
 		$urlLocatorService = new URL_Finder_ServiceLocator();
 		$urlLocatorService->injectURLFinder(new URL_Finder_RealURL_PathCache());
-
 		// @TODO: Implement a service location, that finds the correct Cache Manager instance depending on settings
-		$varnishCacheMgm = new Varnish_CacheManager_CURLHTTP();
 		foreach ($params['pageIdArray'] as $uid) {
 			foreach ($urlLocatorService->getUrlFromPageID($uid) as $url) {
-				$varnishCacheMgm->clearCacheForUrl($url['pagepath'], $url['domain']);
+				$this->clearCacheForUrl($url['pagepath'], $url['domain']);
 			}
+		}
+	}
+
+	/**
+	 * @param string $url
+	 * @param string $domain
+	 * @return void
+	 */
+	protected function clearCacheForUrl($url, $domain = '') {
+		if ($this->extConf['schedulerPurgeQueue']) {
+			$table = 'tx_mocvarnish_purge_queue';
+			$GLOBALS['TYPO3_DB']->exec_INSERTquery($table, array(
+				'url' => $GLOBALS['TYPO3_DB']->quoteStr($url),
+				'domain' => $GLOBALS['TYPO3_DB']->quoteStr($domain),
+				'tstamp' => time(),
+				'crdate' => time(),
+				'cruser_id' => $GLOBALS['BE_USER']->user['uid']
+			), $table);
+		} else {
+			$this->varnishCacheMgm->clearCacheForUrl($url, $domain);
 		}
 	}
 
