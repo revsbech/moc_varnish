@@ -71,10 +71,22 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface, t3l
 			$this->clearQueue = array_unique($this->clearQueue);
 			t3lib_div::devLog('Clearing cache', 'moc_varnish', 0, $this->clearQueue);
 			$mh = curl_multi_init();
+			$varnishHosts = array();
+			if (isset($this->extConf['varnishHosts']) && $this->extConf['varnishHosts'] !== '') {
+				$varnishHosts = t3lib_div::trimExplode($this->extConf['varnishHosts']);
+			}
 			foreach ($this->clearQueue as $path) {
-				$ch = $this->getCurlHandleForCacheClearing($path);
-				array_push($curl_handles, $ch);
-				curl_multi_add_handle($mh, $ch);
+				if (count($varnishHosts) > 0) {
+					foreach ($varnishHosts as $varnishHost) {
+						$ch = $this->getCurlHandleForCacheClearing($path, $varnishHost);
+						array_push($curl_handles, $ch);
+						curl_multi_add_handle($mh, $ch);
+					}
+				} else {
+					$ch = $this->getCurlHandleForCacheClearing($path);
+					array_push($curl_handles, $ch);
+					curl_multi_add_handle($mh, $ch);
+				}
 			}
 
 			$active = NULL;
@@ -101,18 +113,23 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface, t3l
 	}
 
 	/**
-	 * @param string $url
+	 * @param string $url The URL (absolute) to clear for.
+	 * @param string $varnishHost Optional override which IP (and port) the varnish server is running on.
 	 * @return resource
 	 */
-	protected function getCurlHandleForCacheClearing($url) {
+	protected function getCurlHandleForCacheClearing($url, $varnishHost = NULL) {
 		$curlHandle = curl_init();
-		curl_setopt($curlHandle, CURLOPT_URL , $url);
+		if ($varnishHost !== NULL && FALSE) {
+			$parsedUrl = parse_url($url);
+			$domainToClearFor = $parsedUrl['host'];
+			curl_setopt($curlHandle, CURLOPT_URL , str_replace($domainToClearFor, $varnishHost, $url));
+			curl_setopt($curlHandle, CURLOPT_HTTPHEADER, array('Host: ' . $domainToClearFor));
+		} else {
+			curl_setopt($curlHandle, CURLOPT_URL , $url);
+		}
 		curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, 'PURGE');
 		curl_setopt($curlHandle, CURLOPT_HEADER, 0);
 		curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, 1);
-		if (intval($this->extConf['overrideVarnishPort'])) {
-			curl_setopt($curlHandle, CURLOPT_PORT, intval($this->extConf['overrideVarnishPort']));
-		}
 		return $curlHandle;
 	}
 

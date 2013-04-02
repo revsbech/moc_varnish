@@ -19,8 +19,8 @@ schedulerPurgeQueue = 0
 # cat=basic/; type=int; label=Default TTL for USER_INT object [seconds]. By setting this, you can force TYPO3 to cache all USER_INT objects for a given amount of seconds. This drastically improves performance, but you need to handle content for users that are logged in!
 userINT_forceTTL =
 
-# cat=basic/; type=int; label=Varnish port:If varnish is running on a different port than 80, set it here. All PURGE requests, will be made to that port instead.
-overrideVarnishPort =
+# cat=basic/; type=string; label=List of Varnish hosts: A list (comma separated) of varnish hosts to clear for. If left empty, it is assumed that the domain to clear for is pointing to the Varnish server (as seen from the webserver). Sometimes, it is required to point to another IP or address, og even multiple Varnish hosts. Ex: If set to varnishserver01.example.com,varnishserver02.example.com both varnish hosts will be sent a PURGE request, but the Host-header will still contain the domain to clear for. This setting replaces the old overrideVarnishPort setting. If you run Varnish on another port, set this setting to SERVER:PORT
+varnishHosts =
 
 # cat=RealURL/; type=string; label=Override domain: Normally the RealURL finder will return one URL for all domains found in the RealURL configuration. With this option, you can override the domains. Specify domains comma separated, and only URLs for these domains will be cleared. The domains does not have to be in the RealURL conf.
 override_domains =
