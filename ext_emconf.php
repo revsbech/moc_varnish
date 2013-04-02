@@ -28,12 +28,12 @@ $EM_CONF[$_EXTKEY] = array(
 	'clearcacheonload' => 0,
 	'lockType' => '',
 	'author' => 'Jan-Erik Revsbech',
-	'author_email' => 'janerik@mocsystems.com',
-	'author_company' => 'MOC Systems',
-	'CGLcompliance' => '',
-	'CGLcompliance_note' => '',
+	'author_email' => 'janerik@moc.net',
+	'author_company' => 'MOC A/S',
 	'constraints' => array(
 		'depends' => array(
+			'typo3' => '4.4.0-4.7.99',
+			'realurl' => ''
 		),
 		'conflicts' => array(
 		),
