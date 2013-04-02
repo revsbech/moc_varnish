@@ -14,7 +14,7 @@ interface Varnish_CacheMangerInterface {
 
 }
 
-class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface {
+class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface, t3lib_Singleton {
 
 	/**
 	 * @var array

@@ -16,7 +16,7 @@ class tx_mocvarnish_tcemain_cachehooks {
 
 	public function __construct() {
 		$this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_varnish']);
-		$this->varnishCacheMgm = new Varnish_CacheManager_CURLHTTP();
+		$this->varnishCacheMgm = t3lib_div::makeInstance('Varnish_CacheManager_CURLHTTP');
 	}
 
 	/**
@@ -33,7 +33,7 @@ class tx_mocvarnish_tcemain_cachehooks {
 			switch ($params['cacheCmd']) {
 				case 'pages':
 				case 'all':
-					$realurlUrlFinder = new URL_Finder_RealURL_PathCache();
+					$realurlUrlFinder = t3lib_div::makeInstance('URL_Finder_RealURL_PathCache');
 					$rootpages = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('pages.uid', 'pages, sys_template', '(is_siteroot = 1 OR (sys_template.root = 1 AND pages.uid = sys_template.pid AND NOT sys_template.deleted AND NOT sys_template.hidden)) AND NOT pages.hidden AND NOT pages.deleted', 'pages.uid');
 					foreach ($rootpages as $rootpage) {
 						foreach ($realurlUrlFinder->getDomainsFromRootpageId($rootpage['uid']) as $domain) {
@@ -56,8 +56,8 @@ class tx_mocvarnish_tcemain_cachehooks {
 	 * @return void
 	 */
 	public function clearCacheForListOfUids($params, &$parent) {
-		$urlLocatorService = new URL_Finder_ServiceLocator();
-		$urlLocatorService->injectURLFinder(new URL_Finder_RealURL_PathCache());
+		$urlLocatorService = t3lib_div::makeInstance('URL_Finder_ServiceLocator');
+		$urlLocatorService->injectURLFinder(t3lib_div::makeInstance('URL_Finder_RealURL_PathCache'));
 		// @TODO: Implement a service location, that finds the correct Cache Manager instance depending on settings
 		foreach ($params['pageIdArray'] as $uid) {
 			foreach ($urlLocatorService->getUrlFromPageID($uid) as $url) {
