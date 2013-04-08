@@ -35,14 +35,22 @@ class tx_mocvarnish_tcemain_cachehooks {
 				case 'all':
 					$realurlUrlFinder = t3lib_div::makeInstance('URL_Finder_RealURL_PathCache');
 					$rootpages = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('pages.uid', 'pages, sys_template', '(is_siteroot = 1 OR (sys_template.root = 1 AND pages.uid = sys_template.pid AND NOT sys_template.deleted AND NOT sys_template.hidden)) AND NOT pages.hidden AND NOT pages.deleted', 'pages.uid');
-					foreach ($rootpages as $rootpage) {
-						foreach ($realurlUrlFinder->getDomainsFromRootpageId($rootpage['uid']) as $domain) {
-							if ($domain !== '_DEFAULT') {
-								$this->clearCacheForUrl('.*', $domain);
+					$realurlDomainFound = FALSE;
+					if (count($rootpages) > 0) {
+						foreach ($rootpages as $rootpage) {
+							foreach ($realurlUrlFinder->getDomainsFromRootpageId($rootpage['uid']) as $domain) {
+								$realurlDomainFound = TRUE;
+								if ($domain === '_DEFAULT') {
+									$this->clearCacheForUrl('.*');
+								} else {
+									$this->clearCacheForUrl('.*', $domain);
+								}
 							}
 						}
 					}
-					$this->clearCacheForUrl('.*');
+					if ($realurlDomainFound === FALSE) {
+						$this->clearCacheForUrl('.*');
+					}
 				break;
 			}
 		}
