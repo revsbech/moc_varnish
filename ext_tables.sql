@@ -11,5 +11,6 @@ CREATE TABLE tx_mocvarnish_purge_queue (
 	`domain` varchar(255) DEFAULT '' NOT NULL,
 
 	PRIMARY KEY (`uid`),
-	KEY parent (`pid`),
+	UNIQUE KEY `identifier` (`url`, `domain`),
+	KEY parent (`pid`)
 ) ENGINE=InnoDB;

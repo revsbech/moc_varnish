@@ -82,13 +82,14 @@ class tx_mocvarnish_tcemain_cachehooks {
 	protected function clearCacheForUrl($url, $domain = '') {
 		if ($this->extConf['schedulerPurgeQueue']) {
 			$table = 'tx_mocvarnish_purge_queue';
-			$GLOBALS['TYPO3_DB']->exec_INSERTquery($table, array(
+			$query = $GLOBALS['TYPO3_DB']->INSERTquery($table, array(
 				'url' => $GLOBALS['TYPO3_DB']->quoteStr($url),
 				'domain' => $GLOBALS['TYPO3_DB']->quoteStr($domain),
 				'tstamp' => time(),
 				'crdate' => time(),
 				'cruser_id' => $GLOBALS['BE_USER']->user['uid']
 			), $table);
+			$GLOBALS['TYPO3_DB']->sql_query(str_replace('INSERT', 'INSERT IGNORE', $query));
 		} else {
 			$this->varnishCacheMgm->clearCacheForUrl($url, $domain);
 		}

@@ -81,7 +81,7 @@ class URL_Finder_RealURL_PathCache implements URL_Finder_Interface, t3lib_Single
 
 			// If no entries are found in the RealUrl path cache, check if the page is a root-page and clear cache for that page.
 		if (empty($urls)) {
-			$isRootPage = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('count(pages.uid)', 'pages, sys_template', sprintf('(is_siteroot = 1 OR (sys_template.root = 1 AND pages.uid = sys_template.pid AND NOT sys_template.deleted AND NOt sys_template.hidden)) AND NOT pages.hidden AND NOT pages.deleted AND pages.uid = %u', $uid));
+			$isRootPage = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('count(pages.uid)', 'pages, sys_template', sprintf('(is_siteroot = 1 OR (sys_template.root = 1 AND pages.uid = sys_template.pid AND NOT sys_template.deleted AND NOT sys_template.hidden)) AND NOT pages.hidden AND NOT pages.deleted AND pages.uid = %u', $uid));
 			if ($isRootPage > 0) {
 				foreach ($this->getDomainsFromRootpageId($uid) as $domain) {
 					$url = array();

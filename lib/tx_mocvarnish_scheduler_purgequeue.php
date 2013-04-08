@@ -13,7 +13,7 @@ class tx_mocvarnish_scheduler_purgequeue extends tx_scheduler_Task {
 	 */
 	public function execute() {
 		$table = 'tx_mocvarnish_purge_queue';
-		$varnishCacheMgm = new Varnish_CacheManager_CURLHTTP();
+		$varnishCacheMgm = t3lib_div::makeInstance('Varnish_CacheManager_CURLHTTP');
 		$purgeRequests = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid, url, domain', $table, '', '', 'uid ASC', $this->limit, 'uid');
 		foreach ($purgeRequests as $purgeRequest) {
 			$varnishCacheMgm->clearCacheForUrl($purgeRequest['url'], $purgeRequest['domain']);
