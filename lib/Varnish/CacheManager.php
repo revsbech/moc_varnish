@@ -73,7 +73,7 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface, t3l
 			$mh = curl_multi_init();
 			$varnishHosts = array();
 			if (isset($this->extConf['varnishHosts']) && $this->extConf['varnishHosts'] !== '') {
-				$varnishHosts = t3lib_div::trimExplode($this->extConf['varnishHosts']);
+				$varnishHosts = t3lib_div::trimExplode(',', $this->extConf['varnishHosts'], TRUE);
 			}
 			foreach ($this->clearQueue as $path) {
 				if (count($varnishHosts) > 0) {
@@ -119,7 +119,7 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface, t3l
 	 */
 	protected function getCurlHandleForCacheClearing($url, $varnishHost = NULL) {
 		$curlHandle = curl_init();
-		if ($varnishHost !== NULL && FALSE) {
+		if ($varnishHost !== NULL) {
 			$parsedUrl = parse_url($url);
 			$domainToClearFor = $parsedUrl['host'];
 			curl_setopt($curlHandle, CURLOPT_URL , str_replace($domainToClearFor, $varnishHost, $url));
