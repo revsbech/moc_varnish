@@ -1,0 +1,13 @@
+varnish = PAGE
+varnish {
+	config {
+		disableAllHeaderCode = 1
+		sendCacheHeaders = 0
+	}
+
+	typeNum = 978
+
+	10 = USER_INT
+	10.userFunc = user_renderint
+	10.includeLibs = typo3conf/ext/moc_varnish/user_renderInt.php
+}

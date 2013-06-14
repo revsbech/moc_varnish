@@ -1,0 +1,31 @@
+Version 1.5.1 - April 2012
+	* [BUGFIX] Fix usage of varnishHosts configuration option
+	* [BUGFIX] Prevent mismatch for unique SQL key in extension manager
+
+Version 1.5.0 - April 2012
+	* [BUGFIX] Only clear without domain if domains aren't found for rootpages
+	* [BUGFIX] Prevent duplicate entries in Scheduler queue
+	* [FEATURE] Add cache clearing of multiple varnish hosts
+	* [BUGFIX] Fix problem with multiple clearings of same URL
+	* [TASK] Update Varnish icon
+	* [FEATURE] Add optional scheduler purge request queue
+
+2012-07-13 Jan-Erik Revbsech <janerik@moc.net>
+	* Release version 1.4.0
+
+2011-10-14 Jan-Erik Revsbech <janerik@moc.net>, Michael Stucki <michael.stucki@typo3.org>>
+	* Changed to be compatible with TYPO3 4.4 as well
+	* Add configuration that specified the port Varnish is run on (used when purging)
+	* Code cleanup
+	* Add feature where FE session cookie is not set unless needed (optional)
+	* Add support for PHP_SCRIPT_INT and COA_INT cObjects
+	* Remove no_cache on ESI generation scripts
+
+2011-07-02 Chrisitan Jul Jensen <christian@mocsystems.com>
+
+	* Updated to make it compatible to TYPO3 4.5
+	* Updated VCL examples to Varnish 2.1
+
+2010-03-17 Jan-Erik Revsbech  <janerik@mocsystems.com>
+
+	* initial code generated with kickstarter
