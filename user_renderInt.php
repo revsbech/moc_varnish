@@ -59,7 +59,7 @@ function user_renderint($content,$conf) {
 		return $incContent;
 	} else {
 		header('X-TYPO3-DISABLE-VARNISHCACHE: true');
-		print date('d/m-Y H:m:i') . ': Cache for page found, but there is no configuration for USER_INT with hash ' . $key . ' in cache record...' . t3lib_div::view_array($data);
+		print date('d/m-Y H:m:i') . ': Cache for page found, but there is no configuration for USER_INT with hash ' . $key . ' in cache record...' . t3lib_utility_Debug::viewArray($data);
 		exit();
 	}
 
