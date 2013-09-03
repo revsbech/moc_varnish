@@ -1,3 +1,8 @@
+Version 2.0 - September 2013
+	* [!!!][FEATURE] Refactor to 6.0 compatibility. 4.x branch is no longer supported
+	* [!!!][-FEATURE] Removal os automatic USER_INT to ESI support
+	* [!!!][FEATURE] Restructure to eventbased purging to speed up backend performance
+
 Version 1.5.1 - April 2012
 	* [BUGFIX] Fix usage of varnishHosts configuration option
 	* [BUGFIX] Prevent mismatch for unique SQL key in extension manager

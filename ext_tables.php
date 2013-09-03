@@ -3,17 +3,17 @@ if (!defined('TYPO3_MODE')) {
 	die('Access denied.');
 }
 
-// initialize static extension templates
-t3lib_extMgm::addStaticFile($_EXTKEY, 'static/', 'MOC Varnish');
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'static/', 'MOC Varnish');
 
-$TCA['tx_mocvarnish_purge_queue'] = array(
+$TCA['tx_mocvarnish_purgeevent_queue'] = array(
 	'ctrl' => array(
-		'title' => 'Varnish Purge Queue',
-		'label' => 'url',
+		'title' => 'Varnish purge eventqueue',
+		'label' => 'Purge Event',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
-		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY) . 'tca.php',
-		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY) . 'tx_mocvarnish_purge_queue.png'
+		'hideTable' => 1,
+		'dynamicConfigFile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY) . 'Configuration/TCA/PurgeeventQueue.php',
+		'iconfile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath($_EXTKEY) . 'Resources/Public/Icons/PurgeeventQueue.png'
 	)
 );

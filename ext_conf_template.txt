@@ -1,6 +1,3 @@
-# cat=basic/enable; type=boolean; label=Convert USER_INT to ESI for Varnish requests.
-enableESI = 1
-
 # cat=basic/enable; type=boolean; label=Send PURGE request when TYPO3 clears cache.
 enableClearVarnishCache = 1
 
@@ -13,14 +10,14 @@ writeUserLoginCookie=0
 # cat=basic/enable; type=boolean; label=Disable set-cookie when not needed: If set (default, false), TYPO3 do not send a Set-Cookie if the generated session-id is not used for anything. It is only sent if a user is authenticating or if the setKey() method is called to store anonymous session data. After the session fixation fix for TYPO3, a new session id is generated everytime if it is not used for anything, this however implies that we can not cache the output in varnish.
 disableSetCookieWhenNotNeeded = 0
 
-# cat=basic/enable; type=boolean; label=Scheduler purge queue: Instead of sending purge request to Varnish when clearing page cache, fill a queue with purge url's to be requested by a scheduler job. This removes unnecessary delay when clearing page cache. Remember to set up the scheduler job! (suggested settings: 1 minute frequency with a limit of 10000).
-schedulerPurgeQueue = 0
-
-# cat=basic/; type=int; label=Default TTL for USER_INT object [seconds]. By setting this, you can force TYPO3 to cache all USER_INT objects for a given amount of seconds. This drastically improves performance, but you need to handle content for users that are logged in!
-userINT_forceTTL =
-
 # cat=basic/; type=string; label=List of Varnish hosts: A list (comma separated) of varnish hosts to clear for. If left empty, it is assumed that the domain to clear for is pointing to the Varnish server (as seen from the webserver). Sometimes, it is required to point to another IP or address, og even multiple Varnish hosts. Ex: If set to varnishserver01.example.com,varnishserver02.example.com both varnish hosts will be sent a PURGE request, but the Host-header will still contain the domain to clear for. This setting replaces the old overrideVarnishPort setting. If you run Varnish on another port, set this setting to SERVER:PORT
 varnishHosts =
 
-# cat=RealURL/; type=string; label=Override domain: Normally the RealURL finder will return one URL for all domains found in the RealURL configuration. With this option, you can override the domains. Specify domains comma separated, and only URLs for these domains will be cleared. The domains does not have to be in the RealURL conf.
+# cat=Domain/; type=string; label=Override domain: Normally the purge mechanism will return one URL for all domain-records found. With this option, you can override the domains. Specify domains comma separated, and only URLs for these domains will be cleared.
 override_domains =
+
+# cat=Event/; type=boolean; Label=Asynchronous handling of purge for single page uid: Enable this to have purge requests for single pages handled asynchronously. This will add a little bit of delay, but will speed up the backend since the actual purge requests will be delegated to a scheduler task. Remember to enable the scheduler task.
+event.enable_async_pageuid_event = 0
+
+# cat=Event/; type=boolean; Label=Asynchronous handling of purge for url: Enable this to have purge requests for specific URL's (including "Clear all cache") handled asynchronously. This will add a little bit of delay, but will speed up the backend since the actual purge requests will be delegated to a scheduler task. Remember to enable the scheduler task.
+event.enable_async_url_event = 0

@@ -1,20 +1,23 @@
 <?php
-interface Varnish_CacheMangerInterface {
+namespace MOC\MocVarnish\VarnishPurgeService;
 
-	/**
-	 * Clear cache for a given urls, possibly on a certains domain.
-	 * The second paramater to the function, is the domain for which the URL should cleared.
-	 * If left empty (the default), it will be cleared for all domain.
-	 *
-	 * @param string $url The URL to cleare cache for
-	 * @param string $domain The domain for which the URL should is to be cleared. If left empty, means all (The defalt is empty).
-	 * @return void
-	 */
-	public function clearCacheForUrl($url, $domain = '');
+use MOC\MocVarnish\VarnishPurgeServiceInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-}
-
-class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface, t3lib_Singleton {
+/**
+ * Curl HTTP Implementation of the VarnishPurgeServiceInterface for MOC Varnish.
+ *
+ * This implementation clears cache by sending a HTTP Purge request via CURL
+ * to Varnish.
+ *
+ * It is dependent on varnish being correctly configured to ban cache records
+ * when a PURGE request is received.
+ *
+ * The requests are cached internally, and executed when PHP calls the destructor.
+ *
+ * @package MOC\MocVarnish
+ */
+class CurlVarnishPurgeService implements VarnishPurgeServiceInterface {
 
 	/**
 	 * @var array
@@ -27,31 +30,31 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface, t3l
 	protected $extConf = array();
 
 	/**
-	 * Create an instance of the CURLHTTP cachemanager. IT takes one parameter, the HTTP address
-	 * (including http://) that the Varnish server is running on. If this parameter is specified
-	 * This one is used, otherwise, the host of the URL that needs to cleared is used.
+	 * Constructor
 	 */
 	public function __construct() {
 		$this->extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_varnish']);
 	}
 
 	/**
-	 * Clear cache for a given urls, possibly on a certains domain.
-	 * The second paramater to the function, is the domain for which the URL should cleared.
-	 * If left empty (the default), it will be cleared for all domain.
+	 * Clear cache for a given urls, possibly on a given domain.
 	 *
-	 * @param string $url
-	 * @param string $domain
-	 * @param string $scheme
+	 * If domain is left empty, a RuntimeException is thrown.
+	 *
+	 * @param string $url The URL to clear cache for
+	 * @param string $domain A possible domain to clear cache for
+	 * @param string $scheme Default http://
 	 * @return void
+	 * @throws \RuntimeException
 	 */
-	public function clearCacheForUrl($url, $domain = '', $scheme = 'http://') {
-		if ($domain) {
-			$parsedDomain = parse_url($domain);
-			$path = $scheme . str_replace('/', '', isset($parsedDomain['host']) ? $parsedDomain['host'] : $parsedDomain['path']);
-		} else {
-			$path = t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST');
+	public function clearCacheForUrl($url, $domain, $scheme = 'http://') {
+		if (empty($domain)) {
+			throw new \RuntimeException('Unable to clear Varnish cache via Curl HTTP Purgeservice on unknown domain.');
 		}
+
+		$parsedDomain = parse_url($domain);
+		$path = $scheme . str_replace('/', '', isset($parsedDomain['host']) ? $parsedDomain['host'] : $parsedDomain['path']);
+
 		if (substr($url, 0, 1) !== '/') {
 			$path .= '/';
 		}
@@ -63,28 +66,30 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface, t3l
 	}
 
 	/**
+	 * Do the actual Curl HTTP Purge requests
+	 *
 	 * @return void
 	 */
 	public function execute() {
-		$curl_handles = array();
+		$curlHandles = array();
 		if (count($this->clearQueue) > 0) {
 			$this->clearQueue = array_unique($this->clearQueue);
-			t3lib_div::devLog('Clearing cache', 'moc_varnish', 0, $this->clearQueue);
+			GeneralUtility::devLog('Curl HTTP Purge service clearing cache', 'moc_varnish', 0, $this->clearQueue);
 			$mh = curl_multi_init();
 			$varnishHosts = array();
 			if (isset($this->extConf['varnishHosts']) && $this->extConf['varnishHosts'] !== '') {
-				$varnishHosts = t3lib_div::trimExplode(',', $this->extConf['varnishHosts'], TRUE);
+				$varnishHosts = GeneralUtility::trimExplode(',', $this->extConf['varnishHosts'], TRUE);
 			}
 			foreach ($this->clearQueue as $path) {
 				if (count($varnishHosts) > 0) {
 					foreach ($varnishHosts as $varnishHost) {
 						$ch = $this->getCurlHandleForCacheClearing($path, $varnishHost);
-						array_push($curl_handles, $ch);
+						array_push($curlHandles, $ch);
 						curl_multi_add_handle($mh, $ch);
 					}
 				} else {
 					$ch = $this->getCurlHandleForCacheClearing($path);
-					array_push($curl_handles, $ch);
+					array_push($curlHandles, $ch);
 					curl_multi_add_handle($mh, $ch);
 				}
 			}
@@ -102,7 +107,7 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface, t3l
 				}
 			}
 
-			foreach ($curl_handles as $ch) {
+			foreach ($curlHandles as $ch) {
 				curl_close($ch);
 				curl_multi_remove_handle($mh, $ch);
 			}
@@ -122,10 +127,10 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface, t3l
 		if ($varnishHost !== NULL) {
 			$parsedUrl = parse_url($url);
 			$domainToClearFor = $parsedUrl['host'];
-			curl_setopt($curlHandle, CURLOPT_URL , str_replace($domainToClearFor, $varnishHost, $url));
+			curl_setopt($curlHandle, CURLOPT_URL, str_replace($domainToClearFor, $varnishHost, $url));
 			curl_setopt($curlHandle, CURLOPT_HTTPHEADER, array('Host: ' . $domainToClearFor));
 		} else {
-			curl_setopt($curlHandle, CURLOPT_URL , $url);
+			curl_setopt($curlHandle, CURLOPT_URL, $url);
 		}
 		curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, 'PURGE');
 		curl_setopt($curlHandle, CURLOPT_HEADER, 0);
@@ -133,6 +138,10 @@ class Varnish_CacheManager_CURLHTTP implements Varnish_CacheMangerInterface, t3l
 		return $curlHandle;
 	}
 
+	/**
+	 * When this destructor is called by PHP Garbage collection, all stored URL's to purge will
+	 * be executed, ie. sent as HTTP Purge requests to varnish.
+	 */
 	public function __destruct() {
 		$this->execute();
 	}

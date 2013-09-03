@@ -15,7 +15,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'description' => 'Extension that provides useful features when using Varnish with TYPO3, like cache-clearing and automatic ESI.',
 	'category' => '',
 	'shy' => 0,
-	'version' => '1.5.1',
+	'version' => '2.0',
 	'dependencies' => 'realurl',
 	'conflicts' => '',
 	'priority' => '',
@@ -32,8 +32,9 @@ $EM_CONF[$_EXTKEY] = array(
 	'author_company' => 'MOC A/S',
 	'constraints' => array(
 		'depends' => array(
-			'typo3' => '4.4.0-4.7.99',
+			'typo3' => '6.0',
 			'realurl' => '',
+			'extbase' => '6.0'
 		),
 		'conflicts' => array(
 		),
