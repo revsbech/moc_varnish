@@ -37,6 +37,14 @@ class CurlVarnishPurgeService implements VarnishPurgeServiceInterface {
 	}
 
 	/**
+	 * If set, the actual CURL call are executed when the clearCacheForUrl is called, otherwise the execute
+	 * methods is called when the PHP Garbage cleaning is running.
+	 *
+	 * @var boolean
+	 */
+	public static $executeImmediately = FALSE;
+
+	/**
 	 * Clear cache for a given urls, possibly on a given domain.
 	 *
 	 * If domain is left empty, a RuntimeException is thrown.
@@ -63,6 +71,9 @@ class CurlVarnishPurgeService implements VarnishPurgeServiceInterface {
 			$path .= '.*';
 		}
 		array_push($this->clearQueue, $path);
+		if (static::$executeImmediately) {
+			$this->execute();
+		}
 	}
 
 	/**

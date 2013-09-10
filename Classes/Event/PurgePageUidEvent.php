@@ -20,4 +20,12 @@ class PurgePageUidEvent implements PurgeEventInterface {
 		$this->pageUid = $pageUid;
 	}
 
+	/**
+	 * @return string
+	 */
+	public function __toString() {
+		return 'PageUid ' . $this->pageUid;
+	}
+
+
 }

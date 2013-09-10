@@ -27,4 +27,11 @@ class PurgeUrlEvent implements PurgeEventInterface {
 		$this->domain = $domain;
 	}
 
+	/**
+	 * @return string
+	 */
+	public function __toString() {
+		return 'Url ' . $this->domain . '/' . $this->url;
+	}
+
 }

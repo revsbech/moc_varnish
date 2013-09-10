@@ -6,12 +6,24 @@ if ($config['enableClearVarnishCache']) {
 	$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearCachePostProc'][$_EXTKEY] = 'EXT:' . $_EXTKEY . '/Classes/Hooks/TceMainCacheHooks.php:&MOC\MocVarnish\Hooks\TceMainCacheHooks->clearCacheCmd';
 	$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearPageCacheEval'][$_EXTKEY] = 'EXT:' . $_EXTKEY . '/Classes/Hooks/TceMainCacheHooks.php:&MOC\MocVarnish\Hooks\TceMainCacheHooks->clearCacheForListOfUids';
 
-	$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['MOC\\MocVarnish\\Scheduler\\HandlePurgeEventsTask'] = array(
-		'extension' => $_EXTKEY,
-		'title' => 'Varnish handle purge events',
-		'description' => 'Handle Varnish asynchronous purging events',
-		'additionalFields' => 'MOC\\MocVarnish\\Scheduler\\HandlePurgeEventsAdditionalFieldProvider'
-	);
+	if (intval($config['event.']['enable_beanstalk']) == 0) {
+		$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['MOC\\MocVarnish\\Scheduler\\HandlePurgeEventsTask'] = array(
+			'extension' => $_EXTKEY,
+			'title' => 'Varnish handle purge events',
+			'description' => 'Handle Varnish asynchronous purging events',
+			'additionalFields' => 'MOC\\MocVarnish\\Scheduler\\HandlePurgeEventsAdditionalFieldProvider'
+		);
+	} else {
+		\MOC\MocVarnish\Event\EventBroker::$useBeanstalk = TRUE;
+		\MOC\MocVarnish\Event\EventBroker::$beanstalkServer = $config['event.']['beanstalk_server'];
+		\MOC\MocVarnish\Event\EventBroker::$beanstalkTube = $config['event.']['beanstalk_tube'];
+
+		$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] = 'Moc\MocVarnish\Command\PheanstalkWorkerCommandController';
+		$pheanstalkClassRoot = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY) . '/Classes';
+		require_once($pheanstalkClassRoot . '/Pheanstalk/ClassLoader.php');
+		Pheanstalk_ClassLoader::register($pheanstalkClassRoot);
+
+	}
 
 	$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY] = array();
 	$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['synchronousEventHandlers'] = array();
@@ -36,8 +48,4 @@ if ($config['writeUserLoginCookie']) {
 
 if ($config['disableSetCookieWhenNotNeeded']) {
 	$GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication']['className'] = 'MOC\MocVarnish\Frontend\Authentication\FrontendUserAuthentication';
-	                                              //\TYPO3\CMS\Felogin\Controller\FrontendLoginController
 }
-
-
-

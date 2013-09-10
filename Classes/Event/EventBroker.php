@@ -30,6 +30,21 @@ class EventBroker implements SingletonInterface {
 	protected static $isInitialized = FALSE;
 
 	/**
+	 * @var boolean
+	 */
+	public static $useBeanstalk = FALSE;
+
+	/**
+	 * @var string
+	 */
+	public static $beanstalkServer = '127.0.0.1';
+
+	/**
+	 * @var string
+	 */
+	public static $beanstalkTube = 'purgeevent';
+
+	/**
 	 * Initialize the registered eventhandlers found in $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['moc_varnish']['synchronousEventHandlers']  and
 	 * $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['moc_varnish']['aSynchronousEventHandlers']
 	 *
@@ -61,17 +76,26 @@ class EventBroker implements SingletonInterface {
 		$this->initialize();
 
 		if (count(static::$aSynchronousEventhandlers) > 0) {
-			$crUserIdentifier = 0;
-			if (is_object($GLOBALS['BE_USER']) && is_array($GLOBALS['BE_USER']->user)) {
-				$crUserIdentifier = $GLOBALS['BE_USER']->user['uid'];
+			if (static::$useBeanstalk) {
+				$pheanstalk = new \Pheanstalk_Pheanstalk(static::$beanstalkServer);
+				$pheanstalk
+					->useTube(static::$beanstalkTube)
+					->put(serialize($event));
+				GeneralUtility::devLog('Publishing event ' . get_class($event) . ' for asynchronous handling via beanstalk.', 'moc_varnish');
+			} else {
+				$crUserIdentifier = 0;
+				if (is_object($GLOBALS['BE_USER']) && is_array($GLOBALS['BE_USER']->user)) {
+					$crUserIdentifier = $GLOBALS['BE_USER']->user['uid'];
+				}
+				$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_mocvarnish_purgeevent_queue', array(
+					'data' => serialize($event),
+					'tstamp' => time(),
+					'crdate' => time(),
+					'cruser_id' => $crUserIdentifier
+				));
+				GeneralUtility::devLog('Publishing event ' . get_class($event) . ' for asynchronous handling via scheduler queue.', 'moc_varnish');
 			}
-			$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_mocvarnish_purgeevent_queue', array(
-				'data' => serialize($event),
-				'tstamp' => time(),
-				'crdate' => time(),
-				'cruser_id' => $crUserIdentifier
-			));
-			GeneralUtility::devLog('Publishing event ' . get_class($event) . ' for asynchronous handling.', 'moc_varnish');
+
 		}
 
 		foreach (static::$synchronousEventhandlers as $eventHandler) {
@@ -89,22 +113,32 @@ class EventBroker implements SingletonInterface {
 	 */
 	public function handleAsyncEvents($limit = 0) {
 		$this->initialize();
+
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 'tx_mocvarnish_purgeevent_queue', 'handled = 0', '', 'crdate ASC', $limit > 0 ? $limit : '');
 
 		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 
-			/**
-			 * @var \MOC\MocVarnish\Event\PurgeEventInterface
-			 */
+			/** @var $event \MOC\MocVarnish\Event\PurgeEventInterface */
 			$event = unserialize($row['data']);
+
 			if ($event instanceof \MOC\MocVarnish\Event\PurgeEventInterface) {
-				foreach (static::$aSynchronousEventhandlers as $eventHandler) {
-					if ($eventHandler->canHandleEvent($event)) {
-						$eventHandler->handleEvent($event);
-					}
-				}
+				static::processAsynchronousEvent($event);
 			}
 			$GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_mocvarnish_purgeevent_queue', 'uid=' . $row['uid']);
+		}
+	}
+
+	/**
+	 * Delegate handling to all registered asynchronous eventhandlers
+	 *
+	 * @param \MOC\MocVarnish\Event\PurgeEventInterface $event
+	 * @return void
+	 */
+	public static function processAsynchronousEvent(\MOC\MocVarnish\Event\PurgeEventInterface $event) {
+		foreach (static::$aSynchronousEventhandlers as $eventHandler) {
+			if ($eventHandler->canHandleEvent($event)) {
+				$eventHandler->handleEvent($event);
+			}
 		}
 	}
 

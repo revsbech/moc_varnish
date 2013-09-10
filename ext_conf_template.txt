@@ -21,3 +21,12 @@ event.enable_async_pageuid_event = 0
 
 # cat=Event/; type=boolean; Label=Asynchronous handling of purge for url: Enable this to have purge requests for specific URL's (including "Clear all cache") handled asynchronously. This will add a little bit of delay, but will speed up the backend since the actual purge requests will be delegated to a scheduler task. Remember to enable the scheduler task.
 event.enable_async_url_event = 0
+
+# cat=Event/; type=boolean; Label=Enable beanstalk jobqueue: If enabled, configured asynchronous purgeevents are sent via a beanstalk jobqueue. If not, events are stored locally in a table and processed via a schedulerjob. If you enable this, make sure you have beanstalk running, and make sure you start the worker daemon with the pheanstalkworker:start extbase cli command.
+event.enable_beanstalk = 0
+
+#cat=Event/; type=string; Label=Beanstalk server: The servername or IP of the beanstalk server. Is only used of the beanstalk jobqueue is enabled
+event.beanstalk_server = 127.0.0.1
+
+#cat=Event/; type=string; Label=Beanstalk tube: Specify which tube to use for events. Is only used of the beanstalk jobqueue is enabled
+event.beanstalk_tube = purgeevent
