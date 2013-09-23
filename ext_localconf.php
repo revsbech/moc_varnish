@@ -6,39 +6,31 @@ if ($config['enableClearVarnishCache']) {
 	$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearCachePostProc'][$_EXTKEY] = 'EXT:' . $_EXTKEY . '/Classes/Hooks/TceMainCacheHooks.php:&MOC\MocVarnish\Hooks\TceMainCacheHooks->clearCacheCmd';
 	$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearPageCacheEval'][$_EXTKEY] = 'EXT:' . $_EXTKEY . '/Classes/Hooks/TceMainCacheHooks.php:&MOC\MocVarnish\Hooks\TceMainCacheHooks->clearCacheForListOfUids';
 
-	if (intval($config['event.']['enable_beanstalk']) == 0) {
-		$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['MOC\\MocVarnish\\Scheduler\\HandlePurgeEventsTask'] = array(
-			'extension' => $_EXTKEY,
-			'title' => 'Varnish handle purge events',
-			'description' => 'Handle Varnish asynchronous purging events',
-			'additionalFields' => 'MOC\\MocVarnish\\Scheduler\\HandlePurgeEventsAdditionalFieldProvider'
+	/** @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher $signalSlotDispatcher */
+	$signalSlotDispatcher = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\SignalSlot\\Dispatcher');
+
+	if ($config['enable_async_purge'] && \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('moc_message_queue')) {
+		$signalSlotDispatcher->connect(
+			'MOC\MocMessageQueue\Command\QueueWorkerCommandController',
+			'messageReceived',
+			'MOC\MocVarnish\Slots\MessageQueue',
+			'handleAsynchronousMessage'
 		);
 	} else {
-		\MOC\MocVarnish\Event\EventBroker::$useBeanstalk = TRUE;
-		\MOC\MocVarnish\Event\EventBroker::$beanstalkServer = $config['event.']['beanstalk_server'];
-		\MOC\MocVarnish\Event\EventBroker::$beanstalkTube = $config['event.']['beanstalk_tube'];
+		$signalSlotDispatcher->connect(
+			'MOC\MocVarnish\CacheManager',
+			'clearCacheForUrl',
+			'MOC\MocVarnish\Slots\CacheManager',
+			'clearCacheForUrl'
+		);
 
-		$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] = 'Moc\MocVarnish\Command\PheanstalkWorkerCommandController';
-		$pheanstalkClassRoot = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY) . '/Classes';
-		require_once($pheanstalkClassRoot . '/Pheanstalk/ClassLoader.php');
-		Pheanstalk_ClassLoader::register($pheanstalkClassRoot);
+		$signalSlotDispatcher->connect(
+			'MOC\MocVarnish\CacheManager',
+			'clearCacheForPageUid',
+			'MOC\MocVarnish\Slots\CacheManager',
+			'clearCacheForPageUid'
+		);
 
-	}
-
-	$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY] = array();
-	$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['synchronousEventHandlers'] = array();
-	$GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['aSynchronousEventHandlers'] = array();
-
-	if ($config['event.']['enable_async_pageuid_event']) {
-		array_push($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['aSynchronousEventHandlers'], 'MOC\MocVarnish\Event\Handler\PurgePageUidEventHandler');
-	} else {
-		array_push($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['synchronousEventHandlers'], 'MOC\MocVarnish\Event\Handler\PurgePageUidEventHandler');
-	}
-
-	if ($config['event.']['enable_async_url_event']) {
-		array_push($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['aSynchronousEventHandlers'], 'MOC\MocVarnish\Event\Handler\PurgeUrlEventHandler');
-	} else {
-		array_push($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$_EXTKEY]['synchronousEventHandlers'], 'MOC\MocVarnish\Event\Handler\PurgeUrlEventHandler');
 	}
 }
 

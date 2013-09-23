@@ -1,12 +1,13 @@
 <?php
-namespace MOC\MocVarnish\Event;
+namespace MOC\MocVarnish\Message;
+
+use MOC\MocMessageQueue\Message\AbstractMessage;
+use MOC\MocMessageQueue\Message\MessageInterface;
 
 /**
- * Event for purging a specific URL.
- *
- * @package MOC\MocVarnish\Event
+ * @package MOC\MocVarnish
  */
-class PurgeUrlEvent implements PurgeEventInterface {
+class PurgeUrlMessage extends AbstractMessage implements MessageInterface {
 
 	/**
 	 * @var string
@@ -25,13 +26,6 @@ class PurgeUrlEvent implements PurgeEventInterface {
 	public function __construct($url, $domain = '') {
 		$this->url = $url;
 		$this->domain = $domain;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function __toString() {
-		return 'Url ' . $this->domain . '/' . $this->url;
 	}
 
 }

@@ -1,40 +1,60 @@
 <?php
 namespace MOC\MocVarnish;
 
-use MOC\MocVarnish\Event\EventBroker;
-use MOC\MocVarnish\Event\PurgePageUidEvent;
-use MOC\MocVarnish\Event\PurgeUrlEvent;
+use MOC\MocVarnish\Message\PurgePageUidMessage;
+use MOC\MocVarnish\Message\PurgeUrlMessage;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-
 
 /**
  * CacheManger for MOC Varnish. Use this class for request clearing of Varnish cache
  * for either a specific URL or a page uid.
  *
- * The cache manager will fire PurgeCache events to the registered EventBroker thereby
- * delegating the actual clearing to registered event handlers.
- *
- * The event handlers can be synchronous og a-synchronous depending on configuration (configurable in ExtManager)
+ * The cache manager will either (depending on configuration) emit a signal for synchrouns handling, or will publish
+ * a message using the message queue delegating the actual work making the backend much faster.
  *
  * @package MOC\MocVarnish
  */
 class CacheManager implements SingletonInterface {
 
 	/**
-	 * @var \MOC\MocVarnish\Event\EventBroker
-	 * @inject
+	 * @var \MOC\MocMessageQueue\Queue\QueueInterface
 	 */
-	protected $eventBroker;
+	protected $queue;
 
 	/**
-	 * @var \TYPO3\CMS\Extbase\Object\ObjectManager
-	 * @inject
+	 * @var array
 	 */
-	protected $objectManager;
+	protected $extensionConfiguration = array();
 
 	/**
-	 * This method will schedule a cache clearing event via the event broker.
+	 * @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher
+	 * @inject
+	 */
+	protected $signalSlotDispatcher;
+
+	/**
+	 * @var bool
+	 */
+	protected $emitAsynchronously = FALSE;
+
+	/**
+	 *
+	 */
+	public function __construct() {
+		$this->extensionConfiguration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_varnish']);
+
+		$objectManager = GeneralUtility::makeInstance('TYPO3\CMS\Extbase\Object\ObjectManager');
+		if ($this->extensionConfiguration['enable_async_purge'] && ExtensionManagementUtility::isLoaded('moc_message_queue')) {
+			$this->emitAsynchronously = TRUE;
+				// It is on purpose that this is not injected as we only want it if the enable_async_puge is set
+			$this->queue = $objectManager->get('MOC\MocMessageQueue\Queue\QueueInterface');
+		}
+	}
+
+	/**
+	 * This method will schedule a cache clearing signal. Either as a extbase Signal, or as a message queue message.
 	 *
 	 * Call this to trigger clearing cache for a specific URL. You can optionally specify for which domain this should
 	 * work.
@@ -44,13 +64,22 @@ class CacheManager implements SingletonInterface {
 	 * @return boolean
 	 */
 	public function clearCacheForUrl($url, $domain = '') {
-		GeneralUtility::devLog('Triggering clear cache event for url ' . $url . ' on domain ' . $domain, 'moc_varnish');
-		$event = new PurgeUrlEvent($url, $domain);
-		return $this->eventBroker->publish($event);
+
+		if ($this->emitAsynchronously) {
+			GeneralUtility::devLog('Publishing clear cache message for url ' . $url . ' on domain ' . $domain, 'moc_varnish');
+			$this->queue->publish(new PurgeUrlMessage($url, $domain));
+		} else {
+			GeneralUtility::devLog('Emitting clear cache message for url ' . $url . ' on domain ' . $domain, 'moc_varnish');
+			$this->signalSlotDispatcher->dispatch(__CLASS__, 'clearCacheForUrl', array(
+				'url' => $url,
+				'domain' => $domain
+			));
+		}
+		return TRUE;
 	}
 
 	/**
-	 * This method will schedule a cache clearing event via the event broker .
+	 * This method will schedule a cache clearing signal. Either as a extbase Signal, or as a message queue message.
 	 *
 	 * Call this to trigger clearing cache for a specific page uid.
 	 *
@@ -58,9 +87,16 @@ class CacheManager implements SingletonInterface {
 	 * @return boolean
 	 */
 	public function clearCacheForPageUid($pageUid) {
-		GeneralUtility::devLog('Triggering clear cache event for pageid ' . $pageUid, 'moc_varnish');
-		$event = new PurgePageUidEvent($pageUid);
-		return $this->eventBroker->publish($event);
+		if ($this->emitAsynchronously) {
+			GeneralUtility::devLog('Publishing clear cache message for pageid ' . $pageUid, 'moc_varnish');
+			$this->queue->publish(new PurgePageUidMessage($pageUid));
+		} else {
+			GeneralUtility::devLog('Emitting clear cache signal for pageid ' . $pageUid, 'moc_varnish');
+			$this->signalSlotDispatcher->dispatch(__CLASS__, 'clearCacheForPageUid', array(
+				'pageUid' => $pageUid,
+			));
+		}
+		return TRUE;
 	}
 
 }
