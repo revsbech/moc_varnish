@@ -29,9 +29,9 @@ class DomainLocatorService implements SingletonInterface {
 	/**
 	 * Find all domains that a page is available for (not including redirect domains)
 	 *
-	 * For a given pageuid, it will find all domains for the site that page is located on
-	 * Will traverse the rootline and look for domain records in the siteroot.
-	 * If no siteroot is found, it will return all domains.
+	 * For a given page uid, it will find all domains for the site that page is located on
+	 * Will traverse the rootline and look for domain records in the site root.
+	 * If no site root is found, it will return all domains.
 	 *
 	 * Respects ExtManager setting override_domains
 	 *
@@ -42,19 +42,19 @@ class DomainLocatorService implements SingletonInterface {
 		if ($this->extConf['override_domains']) {
 			return GeneralUtility::trimExplode(',', $this->extConf['override_domains']);
 		}
-		$rootpageUid = 0;
+		$rootPageUid = 0;
 		$domains = array();
 		$rootLineStruct = \TYPO3\CMS\Backend\Utility\BackendUtility::BEgetRootLine($pageUid);
 		foreach ($rootLineStruct as $page) {
 			if ($page['is_siteroot']) {
-				$rootpageUid = $page['uid'];
+				$rootPageUid = $page['uid'];
 				break;
 			}
 		}
-		if ($rootpageUid === 0) {
+		if ($rootPageUid === 0) {
 			return $this->getAllDomains();
 		}
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('domainName', 'sys_domain', 'redirectTo="" AND pid=' . $rootpageUid);
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('domainName', 'sys_domain', 'NOT redirectTo AND pid = ' . $rootPageUid);
 		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			array_push($domains, $row['domainName']);
 		}
@@ -73,7 +73,7 @@ class DomainLocatorService implements SingletonInterface {
 			return GeneralUtility::trimExplode(',', $this->extConf['override_domains']);
 		}
 		$domains = array();
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('domainName', 'sys_domain', 'redirectTo=""');
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('domainName', 'sys_domain', 'NOT redirectTo');
 		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			array_push($domains, $row['domainName']);
 		}
@@ -81,4 +81,3 @@ class DomainLocatorService implements SingletonInterface {
 	}
 
 }
-

@@ -5,7 +5,7 @@ namespace MOC\MocVarnish\Slots;
  * Slot for listening to clear cache signals.
  *
  * When the CacheManager emits signal about clearing cache, this slot will pick them up and do the actual clearning.
-
+ *
  * @package MOC\MocVarnish
  */
 class CacheManager {
