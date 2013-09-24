@@ -39,9 +39,6 @@ class CacheManager implements SingletonInterface {
 	 */
 	protected $emitAsynchronously = FALSE;
 
-	/**
-	 *
-	 */
 	public function __construct() {
 		$this->extensionConfiguration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['moc_varnish']);
 
@@ -64,7 +61,6 @@ class CacheManager implements SingletonInterface {
 	 * @return boolean
 	 */
 	public function clearCacheForUrl($url, $domain = '') {
-
 		if ($this->emitAsynchronously) {
 			GeneralUtility::devLog('Publishing clear cache message for url ' . $url . ' on domain ' . $domain, 'moc_varnish');
 			$this->queue->publish(new PurgeUrlMessage($url, $domain));
@@ -88,12 +84,12 @@ class CacheManager implements SingletonInterface {
 	 */
 	public function clearCacheForPageUid($pageUid) {
 		if ($this->emitAsynchronously) {
-			GeneralUtility::devLog('Publishing clear cache message for pageid ' . $pageUid, 'moc_varnish');
+			GeneralUtility::devLog('Publishing clear cache message for page id ' . $pageUid, 'moc_varnish');
 			$this->queue->publish(new PurgePageUidMessage($pageUid));
 		} else {
-			GeneralUtility::devLog('Emitting clear cache signal for pageid ' . $pageUid, 'moc_varnish');
+			GeneralUtility::devLog('Emitting clear cache signal for page id ' . $pageUid, 'moc_varnish');
 			$this->signalSlotDispatcher->dispatch(__CLASS__, 'clearCacheForPageUid', array(
-				'pageUid' => $pageUid,
+				'pageUid' => $pageUid
 			));
 		}
 		return TRUE;

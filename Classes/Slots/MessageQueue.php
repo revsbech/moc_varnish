@@ -51,7 +51,6 @@ class MessageQueue {
 					$this->varnishPurgeService->clearCacheForUrl($message->url, $domain);
 				}
 			}
-
 		}
 	}
 
