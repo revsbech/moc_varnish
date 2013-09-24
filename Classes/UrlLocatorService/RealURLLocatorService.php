@@ -2,7 +2,6 @@
 namespace MOC\MocVarnish\UrlLocatorService;
 
 use MOC\MocVarnish\UrlLocatorServiceInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * RealURL pathcache implementation of MOC Varnish UrlLocatorService

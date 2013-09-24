@@ -57,7 +57,7 @@ class CurlVarnishPurgeService implements VarnishPurgeServiceInterface {
 	 */
 	public function clearCacheForUrl($url, $domain, $scheme = 'http://') {
 		if (empty($domain)) {
-			throw new \RuntimeException('Unable to clear Varnish cache via Curl HTTP Purgeservice on unknown domain.');
+			throw new \RuntimeException('Unable to clear Varnish cache via Curl HTTP Purge service on unknown domain.');
 		}
 
 		$parsedDomain = parse_url($domain);
@@ -111,7 +111,7 @@ class CurlVarnishPurgeService implements VarnishPurgeServiceInterface {
 			} while ($mrc == CURLM_CALL_MULTI_PERFORM);
 
 			while ($active && $mrc == CURLM_OK) {
-				if (curl_multi_select($mh) != -1) {
+				if (curl_multi_select($mh) !== -1) {
 					do {
 						$mrc = curl_multi_exec($mh, $active);
 					} while ($mrc == CURLM_CALL_MULTI_PERFORM);
@@ -144,8 +144,8 @@ class CurlVarnishPurgeService implements VarnishPurgeServiceInterface {
 			curl_setopt($curlHandle, CURLOPT_URL, $url);
 		}
 		curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, 'PURGE');
-		curl_setopt($curlHandle, CURLOPT_HEADER, 0);
-		curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curlHandle, CURLOPT_HEADER, FALSE);
+		curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, TRUE);
 		return $curlHandle;
 	}
 
@@ -158,4 +158,3 @@ class CurlVarnishPurgeService implements VarnishPurgeServiceInterface {
 	}
 
 }
-?>

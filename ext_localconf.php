@@ -1,4 +1,7 @@
 <?php
+if (!defined('TYPO3_MODE')) {
+	die('Access denied.');
+}
 
 $config = unserialize($_EXTCONF);
 
@@ -23,14 +26,12 @@ if ($config['enableClearVarnishCache']) {
 			'MOC\MocVarnish\Slots\CacheManager',
 			'clearCacheForUrl'
 		);
-
 		$signalSlotDispatcher->connect(
 			'MOC\MocVarnish\CacheManager',
 			'clearCacheForPageUid',
 			'MOC\MocVarnish\Slots\CacheManager',
 			'clearCacheForPageUid'
 		);
-
 	}
 }
 
