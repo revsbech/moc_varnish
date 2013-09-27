@@ -5,6 +5,8 @@ use MOC\MocMessageQueue\Message\AbstractMessage;
 use MOC\MocMessageQueue\Message\MessageInterface;
 
 /**
+ * Message queue message for clearing/purging a specific URL in Varnish.
+ *
  * @package MOC\MocVarnish
  */
 class PurgeUrlMessage extends AbstractMessage implements MessageInterface {

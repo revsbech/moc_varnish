@@ -5,6 +5,11 @@ use MOC\MocMessageQueue\Message\MessageInterface;
 use MOC\MocVarnish\Message\PurgePageUidMessage;
 use MOC\MocVarnish\Message\PurgeUrlMessage;
 
+/**
+ * Extbase slot (as in SignalSlots) that listens for signals emitted by cache-clearing events.
+ *
+ * @package MOC\MocVarnish
+ */
 class MessageQueue {
 
 	/**
