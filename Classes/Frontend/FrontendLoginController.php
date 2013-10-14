@@ -1,8 +1,15 @@
 <?php
-class ux_tx_felogin_pi1 extends tx_felogin_pi1 {
+namespace MOC\MocVarnish\Frontend;
+
+/**
+ * Extends the builtin FrontendLogin controller to not show cookie warnings when redirecting
+ *
+ * @package MOC\MocVarnish
+ */
+class FrontendLoginController extends \TYPO3\CMS\Felogin\Controller\FrontendLoginController {
 
 	/**
-	 * The main method of the plugin
+	 * Overrides the default main class to implement redirect without cookie warning
 	 *
 	 * @param string $content: The PlugIn content
 	 * @param array $conf: The PlugIn configuration

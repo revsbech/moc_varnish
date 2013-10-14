@@ -41,4 +41,5 @@ if ($config['writeUserLoginCookie']) {
 
 if ($config['disableSetCookieWhenNotNeeded']) {
 	$GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication']['className'] = 'MOC\MocVarnish\Frontend\Authentication\FrontendUserAuthentication';
+	$GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['TYPO3\CMS\Felogin\Controller\FrontendLoginController']['className'] = 'MOC\MocVarnish\Frontend\FrontendLoginController';
 }
