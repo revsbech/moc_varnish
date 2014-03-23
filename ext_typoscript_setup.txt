@@ -3,8 +3,5 @@ config.tx_extbase {
 		MOC\MocVarnish\VarnishPurgeServiceInterface {
 			className = MOC\MocVarnish\VarnishPurgeService\CurlVarnishPurgeService
 		}
-		MOC\MocVarnish\UrlLocatorServiceInterface {
-			className = MOC\MocVarnish\UrlLocatorService\RealURLLocatorService
-		}
 	}
 }

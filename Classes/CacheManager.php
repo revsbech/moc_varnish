@@ -1,6 +1,7 @@
 <?php
 namespace MOC\MocVarnish;
 
+use MOC\MocVarnish\Message\PurgeAllMessage;
 use MOC\MocVarnish\Message\PurgePageUidMessage;
 use MOC\MocVarnish\Message\PurgeUrlMessage;
 use TYPO3\CMS\Core\SingletonInterface;
@@ -11,8 +12,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * CacheManger for MOC Varnish. Use this class for request clearing of Varnish cache
  * for either a specific URL or a page uid.
  *
- * The cache manager will either (depending on configuration) emit a signal for synchrouns handling, or will publish
- * a message using the message queue delegating the actual work making the backend much faster.
+ * The cache manager will either (depending on configuration) emit a signal for synchronous handling, or will publish
+ * a message using the message queue delegating the actual work making the typo3 backend much faster.
  *
  * @package MOC\MocVarnish
  */
@@ -65,6 +66,8 @@ class CacheManager implements SingletonInterface {
 	 * of cache-clear request. The actual clear-cache message is not emitted until the execute method is called. This
 	 * is done during destruction.
 	 *
+	 * The URL does not have to be a TYPO3 page, any URL can be added, also an URL for an image or resource.
+	 *
 	 * @param string $url The URL (relative) to clear cache for
 	 * @param string $domain Specific domain to clear for. If left empty (default) all known domains will be cleared
 	 * @return boolean
@@ -76,7 +79,8 @@ class CacheManager implements SingletonInterface {
 	}
 
 	/**
-	 * This method will schedule a cache clearing signal. Either as a extbase Signal, or as a message queue message.
+	 * This method will schedule a cache clearing signal for a single page. Either as a extbase Signal,
+	 * or as a message queue message.
 	 *
 	 * Call this to trigger clearing cache for a specific page uid.
 	 * The methods will add this pageUid to a list/queue
@@ -89,6 +93,24 @@ class CacheManager implements SingletonInterface {
 	public function clearCacheForPageUid($pageUid) {
 		$this->pidQueueList[$pageUid] = $pageUid;
 		return TRUE;
+	}
+
+	/**
+	 * Clear all cache
+	 *
+	 * @param string $domain Optional domain to clear for
+	 */
+	public function clearAllCache($domain = '') {
+		if ($this->emitAsynchronously) {
+			GeneralUtility::devLog('Publishing clear all cache message', 'moc_varnish');
+			$this->queue->publish(new PurgeAllMessage($domain));
+		} else {
+			GeneralUtility::devLog('Emitting clear all cache signal', 'moc_varnish');
+			$this->signalSlotDispatcher->dispatch(__CLASS__, 'clearAllCache', array(
+				'domain' => $domain
+			));
+		}
+
 	}
 
 	/**
@@ -127,7 +149,7 @@ class CacheManager implements SingletonInterface {
 	}
 
 	/**
-	 * Destructor. Calles the execute method to du the actual publishing of events/messages
+	 * Destructor. Calls the execute method to du the actual publishing of events/messages
 	 */
 	public function __destruct() {
 		$this->execute();

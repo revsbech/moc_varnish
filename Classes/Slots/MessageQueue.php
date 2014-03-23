@@ -4,6 +4,7 @@ namespace MOC\MocVarnish\Slots;
 use MOC\MocMessageQueue\Message\MessageInterface;
 use MOC\MocVarnish\Message\PurgePageUidMessage;
 use MOC\MocVarnish\Message\PurgeUrlMessage;
+use MOC\MocVarnish\Message\PurgeAllMessage;
 
 /**
  * Extbase slot (as in SignalSlots) that listens for signals emitted by cache-clearing events.
@@ -17,12 +18,6 @@ class MessageQueue {
 	 * @inject
 	 */
 	protected $varnishPurgeService;
-
-	/**
-	 * @var \MOC\MocVarnish\UrlLocatorServiceInterface
-	 * @inject
-	 */
-	protected $urlLocatorService;
 
 	/**
 	 * @var \MOC\MocVarnish\DomainLocatorService
@@ -41,10 +36,8 @@ class MessageQueue {
 			if (count($domains) === 0) {
 				return;
 			}
-			foreach ($this->urlLocatorService->getURLFromPageID($message->pageUid) as $url) {
-				foreach ($domains as $domain) {
-					$this->varnishPurgeService->clearCacheForUrl($url, $domain);
-				}
+			foreach ($domains as $domain) {
+				$this->varnishPurgeService->clearCacheForTypo3PageId($message->pageUid, $domain);
 			}
 		}
 
@@ -57,6 +50,17 @@ class MessageQueue {
 				}
 			}
 		}
+
+		if ($message instanceof PurgeAllMessage) {
+			if ($message->domain !== '') {
+				$this->varnishPurgeService->clearAllCache($message->domain);
+			} else {
+				foreach ($this->domainLocatorService->getAllDomains() as $domain) {
+					$this->varnishPurgeService->clearAllCache($domain);
+				}
+			}
+		}
+
 	}
 
 }

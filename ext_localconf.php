@@ -9,6 +9,9 @@ if ($config['enableClearVarnishCache']) {
 	$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearCachePostProc'][$_EXTKEY] = 'EXT:' . $_EXTKEY . '/Classes/Hooks/TceMainCacheHooks.php:&MOC\MocVarnish\Hooks\TceMainCacheHooks->clearCacheCmd';
 	$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearPageCacheEval'][$_EXTKEY] = 'EXT:' . $_EXTKEY . '/Classes/Hooks/TceMainCacheHooks.php:&MOC\MocVarnish\Hooks\TceMainCacheHooks->clearCacheForListOfUids';
 
+	$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-output'][$_EXTKEY] = 'EXT:' . $_EXTKEY . '/Classes/Hooks/TceMainCacheHooks.php:&MOC\MocVarnish\Hooks\FrontendHooks->sendCacheHeaders';
+	//'tx_varnish_hooks_tslib_fe->sendHeader';
+
 	/** @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher $signalSlotDispatcher */
 	$signalSlotDispatcher = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\SignalSlot\\Dispatcher');
 
@@ -31,6 +34,12 @@ if ($config['enableClearVarnishCache']) {
 			'clearCacheForPageUid',
 			'MOC\MocVarnish\Slots\CacheManager',
 			'clearCacheForPageUid'
+		);
+		$signalSlotDispatcher->connect(
+			'MOC\MocVarnish\CacheManager',
+			'clearAllCache',
+			'MOC\MocVarnish\Slots\CacheManager',
+			'clearAllCache'
 		);
 	}
 }

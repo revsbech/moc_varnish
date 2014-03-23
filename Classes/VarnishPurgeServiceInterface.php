@@ -21,4 +21,19 @@ interface VarnishPurgeServiceInterface {
 	 */
 	public function clearCacheForUrl($url, $domain);
 
+	/**
+	 * @param $pageId
+	 * @param $domain
+	 * @param string $scheme
+	 * @return mixed
+	 */
+	public function clearCacheForTypo3PageId($pageId, $domain, $scheme = 'http://');
+
+	/**
+	 * @param string $domain
+	 * @param string $scheme
+	 * @return mixed
+	 */
+	public function clearAllCache($domain = '', $scheme = 'http://');
+
 }

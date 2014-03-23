@@ -12,11 +12,11 @@
 
 $EM_CONF[$_EXTKEY] = array(
 	'title' => 'MOC Varnish',
-	'description' => 'Extension that provides useful features when using Varnish with TYPO3, like cache-clearing and automatic ESI.',
+	'description' => 'Extension that provides useful features when using Varnish with TYPO3.',
 	'category' => '',
 	'shy' => 0,
 	'version' => '2.0.0',
-	'dependencies' => 'realurl',
+	'dependencies' => '',
 	'conflicts' => '',
 	'priority' => '',
 	'loadOrder' => '',
@@ -33,7 +33,6 @@ $EM_CONF[$_EXTKEY] = array(
 	'constraints' => array(
 		'depends' => array(
 			'typo3' => '6.0',
-			'realurl' => '',
 			'extbase' => '6.0'
 		),
 		'conflicts' => array(

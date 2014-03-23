@@ -1,9 +1,6 @@
 # cat=basic/enable; type=boolean; label=Send PURGE request when TYPO3 clears cache.
 enableClearVarnishCache = 1
 
-# cat=basic/enable; type=boolean; label=Append wildcard:Append wildcard to single page cache clearing: Enable this if you would like to append all single page cache clearing url's with .*, so all subpages of a page are cleared when clearing page cache for a single page. This requires that the Varnish VCL matches regular expressions (~). Note that the when clearing the front page (/) the wildcard is not appended, otherwise all cache would be cleared when clearing the front page.
-appendWildcard = 1
-
 # cat=basic/enable; type=boolean; label=Write special cookie when logged in: If set (default is no), TYPO3 will write a special cookie that your varnish VCL configuration can use to disable cache for logged in users.
 writeUserLoginCookie=0
 
@@ -13,7 +10,7 @@ disableSetCookieWhenNotNeeded = 0
 # cat=basic/; type=string; label=List of Varnish hosts: A list (comma separated) of varnish hosts to clear for. If left empty, it is assumed that the domain to clear for is pointing to the Varnish server (as seen from the web server). Sometimes, it is required to point to another IP or address, og even multiple Varnish hosts. Ex: If set to varnishserver01.example.com,varnishserver02.example.com both varnish hosts will be sent a PURGE request, but the Host-header will still contain the domain to clear for. This setting replaces the old overrideVarnishPort setting. If you run Varnish on another port, set this setting to SERVER:PORT
 varnishHosts =
 
-# cat=Domain/; type=string; label=Override domain: Normally the purge mechanism will return one URL for all domain-records found. With this option, you can override the domains. Specify domains comma separated, and only URLs for these domains will be cleared.
+# cat=Domain/; type=string; label=Override domain: Normally the purge mechanism will return one URL for all domain-records found. With this option, you can override the domains. Specify domains comma separated, and only URLs for these domains will be cleared. This is also usefull when runing with dedicated Varnish hosts, where banning is not done per domain, and you do not want TYPO3 to send a BAN/PURGE request per configured domain.
 override_domains =
 
 # cat=basic/enable; type=boolean; Label=Asynchronous handling of purges: Enable this to have purge requests handled asynchronously. This will add a little bit of delay (depending on your message queue), but will speed up the backend since the actual purge requests will be delegated to another process. This requires moc_message_queue to be installed and working.

@@ -17,12 +17,6 @@ class CacheManager {
 	protected $varnishPurgeService;
 
 	/**
-	 * @var \MOC\MocVarnish\UrlLocatorServiceInterface
-	 * @inject
-	 */
-	protected $urlLocatorService;
-
-	/**
 	 * @var \MOC\MocVarnish\DomainLocatorService
 	 * @inject
 	 */
@@ -37,10 +31,9 @@ class CacheManager {
 		if (count($domains) === 0) {
 			return;
 		}
-		foreach ($this->urlLocatorService->getURLFromPageID($pageUid) as $url) {
-			foreach ($domains as $domain) {
-				$this->varnishPurgeService->clearCacheForUrl($url, $domain);
-			}
+
+		foreach ($domains as $domain) {
+			$this->varnishPurgeService->clearCacheForTypo3PageId($pageUid, $domain);
 		}
 	}
 
@@ -57,6 +50,22 @@ class CacheManager {
 				$this->varnishPurgeService->clearCacheForUrl($url, $domain);
 			}
 		}
+	}
+
+	/**
+	 * Clear all cache, possibly for a single domain.
+	 *
+	 * @param string $domain
+	 */
+	public function clearAllCache($domain = '') {
+		if ($domain !== '') {
+			$this->varnishPurgeService->clearAllCache($domain);
+		} else {
+			foreach ($this->domainLocatorService->getAllDomains() as $domain) {
+				$this->varnishPurgeService->clearAllCache($domain);
+			}
+		}
+
 	}
 
 }

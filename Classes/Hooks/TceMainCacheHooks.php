@@ -46,7 +46,7 @@ class TceMainCacheHooks {
 			switch ($params['cacheCmd']) {
 				case 'pages':
 				case 'all':
-					$this->varnishCacheMgm->clearCacheForUrl('.*');
+					$this->varnishCacheMgm->clearAllCache();
 					break;
 				default:
 			}
