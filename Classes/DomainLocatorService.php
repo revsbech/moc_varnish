@@ -54,7 +54,7 @@ class DomainLocatorService implements SingletonInterface {
 		if ($rootPageUid === 0) {
 			return $this->getAllDomains();
 		}
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('domainName', 'sys_domain', 'redirectTo = "" AND pid = ' . $rootPageUid);
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('domainName', 'sys_domain', 'redirectTo = "" AND hidden=0 AND pid = ' . $rootPageUid);
 		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			array_push($domains, $row['domainName']);
 		}
@@ -73,7 +73,7 @@ class DomainLocatorService implements SingletonInterface {
 			return GeneralUtility::trimExplode(',', $this->extConf['override_domains']);
 		}
 		$domains = array();
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('domainName', 'sys_domain', 'redirectTo = ""');
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('domainName', 'sys_domain', 'redirectTo = "" AND hidden=0');
 		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			array_push($domains, $row['domainName']);
 		}
