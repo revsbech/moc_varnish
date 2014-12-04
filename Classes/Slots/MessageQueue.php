@@ -30,13 +30,15 @@ class MessageQueue {
 	 * @return void
 	 */
 	public function handleAsynchronousMessage(MessageInterface $message) {
+
 		if ($message instanceof PurgePageUidMessage) {
 			$domains = $this->domainLocatorService->getDomainsForPageUid($message->pageUid);
-
 			if (count($domains) === 0) {
 				return;
 			}
+
 			foreach ($domains as $domain) {
+				print "In MessagEQueoe with domain " . $domain . ' and page id ' . $message->pageUid . PHP_EOL;
 				$this->varnishPurgeService->clearCacheForTypo3PageId($message->pageUid, $domain);
 			}
 		}

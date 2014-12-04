@@ -32,9 +32,9 @@ class CurlVarnishPurgeService implements VarnishPurgeServiceInterface {
 	protected $extConf = array();
 
 	/**
-	 * @var resource
+	 * @var array
 	 */
-	protected $curlMultiHandle;
+	protected $curlHandles = array();
 
 	/**
 	 * Array of specific varnish hosts to clear for. If this is set (done in extension manager)
@@ -53,7 +53,6 @@ class CurlVarnishPurgeService implements VarnishPurgeServiceInterface {
 		if (isset($this->extConf['varnishHosts']) && $this->extConf['varnishHosts'] !== '') {
 			$this->varnishHosts = GeneralUtility::trimExplode(',', $this->extConf['varnishHosts'], TRUE);
 		}
-		$this->curlMultiHandle = curl_multi_init();
 	}
 
 	/**
@@ -134,24 +133,11 @@ class CurlVarnishPurgeService implements VarnishPurgeServiceInterface {
 	 */
 	public function execute() {
 		GeneralUtility::devLog('Curl HTTP Purge service clearing cache', 'moc_varnish');
-		$active = NULL;
-
-		// Handle differently depending on version of libCURL. Only one of the methods below will actually be called.
-		do {
-			$mrc = curl_multi_exec($this->curlMultiHandle, $active);
-		} while ($mrc == CURLM_CALL_MULTI_PERFORM);
-
-		while ($active && $mrc == CURLM_OK) {
-			if (curl_multi_select($this->curlMultiHandle) !== -1) {
-				do {
-					$mrc = curl_multi_exec($this->curlMultiHandle, $active);
-				} while ($mrc == CURLM_CALL_MULTI_PERFORM);
-			}
+		foreach ($this->curlHandles as $curlHandle) {
+			curl_exec($curlHandle);
+			curl_close($curlHandle);
 		}
-		curl_multi_close($this->curlMultiHandle);
-
-			// Re-init the curlHandle
-		$this->curlMultiHandle = curl_multi_init();
+		$this->curlHandles = array();
 	}
 
 	/**
@@ -186,7 +172,7 @@ class CurlVarnishPurgeService implements VarnishPurgeServiceInterface {
 			curl_setopt($curlHandle, CURLOPT_HEADER, FALSE);
 			curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, TRUE);
 			curl_setopt($curlHandle, CURLOPT_URL, str_replace($domainToClearFor, $varnishHost, $url));
-			curl_multi_add_handle($this->curlMultiHandle, $curlHandle);
+			$this->curlHandles[] = $curlHandle;
 		}
 	}
 
