@@ -48,7 +48,7 @@ if ($config['writeUserLoginCookie']) {
 	$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_userauth.php']['postUserLookUp'][$_EXTKEY] = 'MOC\MocVarnish\Hooks\T3LibUserAuthHooks->writeLoginSessionCookie';
 }
 
-if ($config['disableSetCookieWhenNotNeeded']) {
+if ($config['disableSetCookieWhenNotNeeded'] && \TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3_VERSION) < \TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger('6.2.0')) {
 	$GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication']['className'] = 'MOC\MocVarnish\Frontend\Authentication\FrontendUserAuthentication';
 	$GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['TYPO3\CMS\Felogin\Controller\FrontendLoginController']['className'] = 'MOC\MocVarnish\Frontend\FrontendLoginController';
 }
